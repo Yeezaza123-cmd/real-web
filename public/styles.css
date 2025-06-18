@@ -597,7 +597,7 @@ footer {
 
 .track-btn {
     position: absolute;
-    left: 50%;
+    left: 70%;
     top: 50%;
     transform: translate(-50%, -50%);
     background: linear-gradient(135deg, #ff9800 0%, #ffb74d 100%);
