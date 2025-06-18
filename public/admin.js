@@ -52,6 +52,16 @@ function renderOrders() {
     for (const order of filtered) {
         const card = document.createElement('div');
         card.className = 'admin-order-card';
+        
+        // แสดงสถานที่นัดรับ
+        let pickupLocationText = '';
+        if (order.delivery.method === 'pickup' && order.delivery.pickupLocation) {
+            pickupLocationText = `ที่นัดรับ: ${order.delivery.pickupLocation}`;
+            if (order.delivery.otherLocation) {
+                pickupLocationText += ` (${order.delivery.otherLocation})`;
+            }
+        }
+        
         card.innerHTML = `
             <div class="admin-order-header">
                 <span>ออเดอร์ #${order.orderId}</span>
@@ -64,7 +74,7 @@ function renderOrders() {
                     เบอร์โทร: ${order.customer.phone}<br>
                     วิธีรับสินค้า: ${order.delivery.method === 'delivery' ? 'จัดส่ง' : 'นัดรับ'}<br>
                     ${order.delivery.method === 'delivery' ? `ที่อยู่: ${order.delivery.address}` : ''}
-                    ${order.delivery.method === 'pickup' ? `ที่นัดรับ: ${order.delivery.pickupLocation}${order.delivery.otherLocation ? ' (' + order.delivery.otherLocation + ')' : ''}` : ''}
+                    ${pickupLocationText}
                 </div>
                 <div class="admin-order-items">
                     <strong>รายการสินค้า</strong>
@@ -80,6 +90,7 @@ function renderOrders() {
                 ${order.status === 'wait_ship' && order.delivery.method === 'delivery' ? `<input type="text" id="tracking_${order.orderId}" placeholder="เลขพัสดุ"><button class="ship" onclick="confirmShip('${order.orderId}')">ยืนยันจัดส่ง</button>` : ''}
                 ${order.status === 'wait_ship' && order.delivery.method === 'pickup' ? `<button class="ship" onclick="confirmShip('${order.orderId}')">ยืนยันนัดรับแล้ว</button>` : ''}
                 ${order.status === 'shipped' && order.tracking ? `<span>เลขพัสดุ: ${order.tracking}</span>` : ''}
+                <button class="delete-btn" onclick="deleteOrder('${order.orderId}')" style="background: #dc3545; color: white; border: none; padding: 0.5rem 1rem; border-radius: 4px; cursor: pointer; margin-top: 0.5rem;">ลบออเดอร์</button>
             </div>
         `;
         adminOrdersList.appendChild(card);
@@ -124,6 +135,33 @@ window.confirmShip = function(orderId) {
     })
     .then(res => res.json())
     .then(() => reloadOrders());
+};
+
+// ฟังก์ชันลบออเดอร์
+window.deleteOrder = function(orderId) {
+    if (!confirm('คุณแน่ใจหรือไม่ที่จะลบออเดอร์นี้? การดำเนินการนี้ไม่สามารถยกเลิกได้')) return;
+    
+    fetch('/api/admin/delete-order', {
+        method: 'DELETE',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ 
+            orderId: orderId,
+            password: adminPassword 
+        })
+    })
+    .then(res => res.json())
+    .then(data => {
+        if (data.success) {
+            alert('ลบออเดอร์สำเร็จ');
+            reloadOrders();
+        } else {
+            alert('เกิดข้อผิดพลาด: ' + data.error);
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        alert('เกิดข้อผิดพลาดในการลบออเดอร์');
+    });
 };
 
 // โหลดออเดอร์ใหม่
