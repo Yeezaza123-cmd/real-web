@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>สั่งซื้อ - ปลูกรัก</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="purchase.css">
+</head>
+<body>
+    <header>
+        <div class="container">
+            <h1 class="logo">ปลูกรัก</h1>
+            <nav>
+                <ul>
+                    <li><a href="index.html">หน้าหลัก</a></li>
+                    <li><a href="index.html#products">สินค้า</a></li>
+                </ul>
+            </nav>
+        </div>
+    </header>
+
+    <main>
+        <section class="purchase-section">
+            <div class="container">
+                <h2>📋 ข้อมูลการสั่งซื้อ</h2>
+                
+                <div class="purchase-container">
+                    <!-- สรุปสินค้า -->
+                    <div class="order-summary">
+                        <h3>🛒 สรุปสินค้า</h3>
+                        <div id="orderItems"></div>
+                        <div class="order-total">
+                            <p><strong>ราคารวม: </strong><span id="orderTotal">0</span> บาท</p>
+                        </div>
+                    </div>
+
+                    <!-- ฟอร์มสั่งซื้อ -->
+                    <div class="purchase-form">
+                        <form id="purchaseForm">
+                            <!-- ข้อมูลส่วนตัว -->
+                            <div class="form-section">
+                                <h3>👤 ข้อมูลส่วนตัว</h3>
+                                <div class="form-group">
+                                    <label for="fullName">ชื่อ-สกุล *</label>
+                                    <input type="text" id="fullName" name="fullName" required>
+                                </div>
+                                <div class="form-group">
+                                    <label for="phone">เบอร์โทรศัพท์ *</label>
+                                    <input type="tel" id="phone" name="phone" required>
+                                </div>
+                            </div>
+
+                            <!-- วิธีรับของ -->
+                            <div class="form-section">
+                                <h3>📦 วิธีรับของ</h3>
+                                <div class="form-group">
+                                    <label>เลือกวิธีรับของ *</label>
+                                    <div class="radio-group">
+                                        <label class="radio-label">
+                                            <input type="radio" name="deliveryMethod" value="delivery" required>
+                                            <span>จัดส่ง (+30 บาท)</span>
+                                        </label>
+                                        <label class="radio-label">
+                                            <input type="radio" name="deliveryMethod" value="pickup" required>
+                                            <span>นัดรับ</span>
+                                        </label>
+                                    </div>
+                                </div>
+
+                                <!-- ที่อยู่จัดส่ง -->
+                                <div id="deliveryAddressSection" class="form-group" style="display: none;">
+                                    <label for="deliveryAddress">ที่อยู่จัดส่ง *</label>
+                                    <textarea id="deliveryAddress" name="deliveryAddress" rows="3"></textarea>
+                                </div>
+
+                                <!-- สถานที่นัดรับ -->
+                                <div id="pickupLocationSection" class="form-group" style="display: none;">
+                                    <label for="pickupLocation">สถานที่นัดรับ *</label>
+                                    <select id="pickupLocation" name="pickupLocation">
+                                        <option value="">เลือกสถานที่</option>
+                                        <option value="science">คณะวิทยาศาสตร์มหาวิทยาลัยอุบลราชธานี</option>
+                                        <option value="dormitory">หอราชพฤษถ์1</option>
+                                        <option value="school">โรงเรียนลือคำหาญ</option>
+                                        <option value="other">อื่นๆ</option>
+                                    </select>
+                                    <div id="otherLocationSection" class="form-group" style="display: none;">
+                                        <label for="otherLocation">โปรดระบุสถานที่</label>
+                                        <input type="text" id="otherLocation" name="otherLocation">
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- QR Code ชำระเงิน -->
+                            <div class="form-section" id="qrSection" style="display: none;">
+                                <h3>💳 ชำระเงิน</h3>
+                                <div class="qr-container">
+                                    <div class="qr-code">
+                                        <img id="qrCode" src="" alt="QR Code" style="display: none;">
+                                        <div id="qrPlaceholder">QR Code จะแสดงที่นี่</div>
+                                    </div>
+                                    <div class="payment-info">
+                                        <p><strong>จำนวนเงิน:</strong> <span id="paymentAmount">0</span> บาท</p>
+                                        <p><strong>PromptPay:</strong> 0627891288</p>
+                                        <button type="button" id="generateQRBtn" class="generate-qr-btn">สร้าง QR Code</button>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- อัปโหลดสลิป -->
+                            <div class="form-section" id="slipSection" style="display: none;">
+                                <h3>📄 อัปโหลดสลิปโอนเงิน</h3>
+                                <div class="form-group">
+                                    <label for="paymentSlip">อัปโหลดสลิปโอนเงิน *</label>
+                                    <input type="file" id="paymentSlip" name="paymentSlip" accept="image/*" required>
+                                    <div id="slipPreview" class="slip-preview"></div>
+                                </div>
+                            </div>
+
+                            <!-- ปุ่มยืนยัน -->
+                            <div class="form-actions">
+                                <button type="button" id="confirmOrderBtn" class="confirm-btn" disabled>ยืนยันคำสั่งซื้อ</button>
+                                <button type="button" id="backToCartBtn" class="back-btn">กลับไปตะกร้า</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer>
+        <div class="container">
+            <p>&copy; 2024 ปลูกรัก. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <script src="purchase.js"></script>
+</body>
+</html> 

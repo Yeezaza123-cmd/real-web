@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ติดตามออเดอร์ - ปลูกรัก</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="track.css">
+</head>
+<body>
+    <header>
+        <div class="container">
+            <a href="index.html" class="back-home-btn">กลับสู่หน้าหลัก</a>
+            <h1 class="logo">ปลูกรัก</h1>
+        </div>
+    </header>
+    <main>
+        <section class="track-section">
+            <div class="container">
+                <h2>ติดตามออเดอร์</h2>
+                <form id="trackForm" class="track-form">
+                    <label for="trackPhone">กรอกเบอร์โทรศัพท์ที่ใช้สั่งซื้อ</label>
+                    <input type="tel" id="trackPhone" required placeholder="เช่น 0812345678">
+                    <button type="submit">ค้นหาออเดอร์</button>
+                </form>
+                <div id="trackResult" class="track-result"></div>
+            </div>
+        </section>
+    </main>
+    <footer>
+        <div class="container">
+            <p>&copy; 2024 ปลูกรัก. All rights reserved.</p>
+        </div>
+    </footer>
+    <script src="track.js"></script>
+</body>
+</html> 

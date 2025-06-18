@@ -1,0 +1,30 @@
+{
+  "customer": {
+    "name": "ไนซ์ จ้าวราชัน",
+    "phone": "8888888888"
+  },
+  "delivery": {
+    "method": "delivery",
+    "address": "หฟก",
+    "pickupLocation": "",
+    "otherLocation": ""
+  },
+  "items": [
+    {
+      "productId": 1,
+      "name": "เสื้อสีดำ",
+      "color": "black",
+      "size": "3XL",
+      "price": 229,
+      "quantity": 3,
+      "image": "/images/black.png"
+    }
+  ],
+  "total": 659,
+  "deliveryFee": 30,
+  "grandTotal": 689,
+  "orderDate": "2025-06-18T15:14:13.048Z",
+  "orderId": "PLK1750259653048",
+  "status": "wait_slip",
+  "slip": "/orders/slips/PLK1750259653048.png"
+}

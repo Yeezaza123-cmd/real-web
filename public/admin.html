@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin - ปลูกรัก</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="admin.css">
+</head>
+<body>
+    <header>
+        <div class="container">
+            <h1 class="logo">ปลูกรัก Admin</h1>
+        </div>
+    </header>
+    <main>
+        <section class="admin-login-section" id="adminLoginSection">
+            <div class="container">
+                <h2>เข้าสู่ระบบแอดมิน</h2>
+                <div class="admin-login-form">
+                    <input type="password" id="adminPassword" placeholder="รหัสผ่านแอดมิน">
+                    <button id="adminLoginBtn">เข้าสู่ระบบ</button>
+                    <div id="adminLoginError" class="error-message" style="display:none;"></div>
+                </div>
+            </div>
+        </section>
+        <section class="admin-panel-section" id="adminPanelSection" style="display:none;">
+            <div class="container">
+                <h2>จัดการออเดอร์</h2>
+                <div class="admin-tabs">
+                    <button class="admin-tab-btn active" data-tab="wait_slip">รอยืนยันสลิป</button>
+                    <button class="admin-tab-btn" data-tab="wait_ship">รอจัดส่ง</button>
+                    <button class="admin-tab-btn" data-tab="shipped">จัดส่งแล้ว</button>
+                </div>
+                <div class="admin-orders-list" id="adminOrdersList"></div>
+            </div>
+        </section>
+    </main>
+    <footer>
+        <div class="container">
+            <p>&copy; 2024 ปลูกรัก. All rights reserved.</p>
+        </div>
+    </footer>
+    <script src="admin.js"></script>
+</body>
+</html> 

@@ -1,0 +1,206 @@
+/* Admin Page Styles */
+.admin-login-section {
+    padding: 4rem 0;
+    background: #f8f9fa;
+    min-height: 60vh;
+}
+.admin-login-form {
+    max-width: 400px;
+    margin: 2rem auto 0 auto;
+    display: flex;
+    gap: 1rem;
+    align-items: center;
+}
+.admin-login-form input[type="password"] {
+    flex: 1;
+    padding: 0.75rem;
+    border: 2px solid #ddd;
+    border-radius: 8px;
+    font-size: 1rem;
+}
+.admin-login-form button {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    border: none;
+    padding: 0.75rem 1.5rem;
+    border-radius: 8px;
+    font-size: 1rem;
+    font-weight: bold;
+    cursor: pointer;
+    transition: background 0.3s ease;
+}
+.admin-login-form button:hover {
+    background: #5a6fd8;
+}
+
+.admin-panel-section {
+    padding: 4rem 0;
+    background: #fff;
+    min-height: 80vh;
+}
+.admin-tabs {
+    display: flex;
+    gap: 1rem;
+    margin-bottom: 2rem;
+}
+.admin-tab-btn {
+    background: #f8f9fa;
+    color: #333;
+    border: none;
+    padding: 0.75rem 2rem;
+    border-radius: 8px 8px 0 0;
+    font-size: 1.1rem;
+    font-weight: bold;
+    cursor: pointer;
+    transition: background 0.3s, color 0.3s;
+}
+.admin-tab-btn.active {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+}
+.admin-orders-list {
+    background: #f8f9fa;
+    border-radius: 0 0 15px 15px;
+    padding: 2rem;
+    min-height: 300px;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+}
+.admin-order-card {
+    background: white;
+    border-radius: 10px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.07);
+    margin-bottom: 2rem;
+    padding: 1.5rem 2rem;
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+.admin-order-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 1.1rem;
+    font-weight: bold;
+}
+.admin-order-info {
+    display: flex;
+    gap: 2rem;
+    flex-wrap: wrap;
+}
+.admin-order-customer, .admin-order-items {
+    flex: 1;
+    min-width: 220px;
+}
+.admin-order-items-list {
+    margin-top: 0.5rem;
+}
+.admin-order-items-list li {
+    margin-bottom: 0.25rem;
+}
+.admin-order-total {
+    font-weight: bold;
+    color: #667eea;
+    margin-top: 0.5rem;
+}
+.admin-order-actions {
+    display: flex;
+    gap: 1rem;
+    align-items: center;
+    margin-top: 1rem;
+    flex-wrap: wrap;
+}
+.admin-order-actions input[type="text"] {
+    padding: 0.5rem;
+    border: 2px solid #ddd;
+    border-radius: 6px;
+    font-size: 1rem;
+}
+.admin-order-actions button {
+    background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+    color: white;
+    border: none;
+    padding: 0.5rem 1.5rem;
+    border-radius: 8px;
+    font-size: 1rem;
+    font-weight: bold;
+    cursor: pointer;
+    transition: background 0.3s;
+}
+.admin-order-actions button.view-slip {
+    background: #007bff;
+}
+.admin-order-actions button.view-slip:hover {
+    background: #0056b3;
+}
+.admin-order-actions button.confirm {
+    background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+}
+.admin-order-actions button.confirm:hover {
+    background: #218838;
+}
+.admin-order-actions button.ship {
+    background: linear-gradient(135deg, #ff9800 0%, #ffb74d 100%);
+}
+.admin-order-actions button.ship:hover {
+    background: #ff9800;
+}
+.admin-order-actions button:disabled {
+    background: #ccc;
+    cursor: not-allowed;
+}
+.admin-slip-modal {
+    position: fixed;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: rgba(0,0,0,0.5);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 10000;
+}
+.admin-slip-modal-content {
+    background: white;
+    padding: 2rem;
+    border-radius: 12px;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.2);
+    max-width: 90vw;
+    max-height: 90vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+.admin-slip-modal-content img {
+    max-width: 400px;
+    max-height: 70vh;
+    border-radius: 8px;
+    margin-bottom: 1rem;
+}
+.admin-slip-modal-content button {
+    background: #dc3545;
+    color: white;
+    border: none;
+    padding: 0.5rem 1.5rem;
+    border-radius: 8px;
+    font-size: 1rem;
+    font-weight: bold;
+    cursor: pointer;
+    margin-top: 1rem;
+}
+.admin-slip-modal-content button:hover {
+    background: #b71c1c;
+}
+@media (max-width: 768px) {
+    .admin-order-info {
+        flex-direction: column;
+        gap: 1rem;
+    }
+    .admin-tabs {
+        flex-direction: column;
+        gap: 0.5rem;
+    }
+    .admin-orders-list {
+        padding: 1rem;
+    }
+    .admin-order-card {
+        padding: 1rem;
+    }
+} 
