@@ -5,7 +5,7 @@ const fs = require('fs');
 const multer = require('multer');
 
 const app = express();
-const PORT = 3000;
+const PORT = process.env.PORT || 3000;
 
 // Middleware
 app.use(bodyParser.json());
@@ -44,7 +44,12 @@ const products = [
 // Multer config สำหรับอัปโหลดสลิป
 const storage = multer.diskStorage({
     destination: function (req, file, cb) {
-        cb(null, 'orders/slips');
+        // สร้างโฟลเดอร์ถ้ายังไม่มี
+        const uploadDir = 'orders/slips';
+        if (!fs.existsSync(uploadDir)) {
+            fs.mkdirSync(uploadDir, { recursive: true });
+        }
+        cb(null, uploadDir);
     },
     filename: function (req, file, cb) {
         const orderId = req.body.orderId || req.query.orderId || Date.now();
@@ -52,7 +57,21 @@ const storage = multer.diskStorage({
         cb(null, `${orderId}.${ext}`);
     }
 });
-const upload = multer({ storage: storage });
+
+const upload = multer({ 
+    storage: storage,
+    limits: {
+        fileSize: 5 * 1024 * 1024 // จำกัดขนาดไฟล์ 5MB
+    },
+    fileFilter: function (req, file, cb) {
+        // ตรวจสอบประเภทไฟล์
+        if (file.mimetype.startsWith('image/')) {
+            cb(null, true);
+        } else {
+            cb(new Error('อนุญาตเฉพาะไฟล์รูปภาพเท่านั้น'), false);
+        }
+    }
+});
 
 // ฟังก์ชันคำนวณราคา - แก้ไขให้ถูกต้อง
 function calculatePrice(items) {
@@ -119,6 +138,11 @@ app.get('/', (req, res) => {
     res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
 
+// Health check endpoint for Render
+app.get('/health', (req, res) => {
+    res.status(200).json({ status: 'OK', timestamp: new Date().toISOString() });
+});
+
 app.get('/api/products', (req, res) => {
     res.json(products);
 });
@@ -131,52 +155,101 @@ app.post('/api/calculate-price', (req, res) => {
 
 // API: รับออเดอร์ใหม่
 app.post('/api/order', upload.single('slip'), (req, res) => {
-    const order = JSON.parse(req.body.order);
-    const orderId = order.orderId;
-    order.status = 'wait_slip';
-    if (req.file) {
-        order.slip = `/orders/slips/${req.file.filename}`;
+    try {
+        const order = JSON.parse(req.body.order);
+        const orderId = order.orderId;
+        order.status = 'wait_slip';
+        if (req.file) {
+            order.slip = `/orders/slips/${req.file.filename}`;
+        }
+        
+        // สร้างโฟลเดอร์ orders ถ้ายังไม่มี
+        if (!fs.existsSync('orders')) {
+            fs.mkdirSync('orders', { recursive: true });
+        }
+        
+        fs.writeFileSync(`orders/${orderId}.json`, JSON.stringify(order, null, 2));
+        res.json({ success: true, orderId });
+    } catch (error) {
+        console.error('Error creating order:', error);
+        res.status(500).json({ error: 'เกิดข้อผิดพลาดในการสร้างออเดอร์' });
     }
-    fs.writeFileSync(`orders/${orderId}.json`, JSON.stringify(order, null, 2));
-    res.json({ success: true, orderId });
 });
 
 // API: ดึงออเดอร์ทั้งหมด (admin)
 app.get('/api/admin/orders', (req, res) => {
-    const password = req.query.password;
-    if (password !== '123321') return res.status(401).json({ error: 'unauthorized' });
-    const files = fs.readdirSync('orders').filter(f => f.endsWith('.json'));
-    const orders = files.map(f => {
-        const data = fs.readFileSync(`orders/${f}`);
-        return JSON.parse(data);
-    });
-    res.json(orders);
+    try {
+        const password = req.query.password;
+        if (password !== '123321') return res.status(401).json({ error: 'unauthorized' });
+        
+        if (!fs.existsSync('orders')) {
+            return res.json([]);
+        }
+        
+        const files = fs.readdirSync('orders').filter(f => f.endsWith('.json'));
+        const orders = files.map(f => {
+            const data = fs.readFileSync(`orders/${f}`);
+            return JSON.parse(data);
+        });
+        res.json(orders);
+    } catch (error) {
+        console.error('Error fetching orders:', error);
+        res.status(500).json({ error: 'เกิดข้อผิดพลาดในการดึงข้อมูลออเดอร์' });
+    }
 });
 
 // API: อัปเดตสถานะออเดอร์ (admin)
 app.post('/api/admin/update-status', (req, res) => {
-    const { orderId, status, tracking } = req.body;
-    const filePath = `orders/${orderId}.json`;
-    if (!fs.existsSync(filePath)) return res.status(404).json({ error: 'not found' });
-    const order = JSON.parse(fs.readFileSync(filePath));
-    order.status = status;
-    if (tracking) order.tracking = tracking;
-    fs.writeFileSync(filePath, JSON.stringify(order, null, 2));
-    res.json({ success: true });
+    try {
+        const { orderId, status, tracking } = req.body;
+        const filePath = `orders/${orderId}.json`;
+        if (!fs.existsSync(filePath)) return res.status(404).json({ error: 'not found' });
+        
+        const order = JSON.parse(fs.readFileSync(filePath));
+        order.status = status;
+        if (tracking) order.tracking = tracking;
+        fs.writeFileSync(filePath, JSON.stringify(order, null, 2));
+        res.json({ success: true });
+    } catch (error) {
+        console.error('Error updating order status:', error);
+        res.status(500).json({ error: 'เกิดข้อผิดพลาดในการอัปเดตสถานะ' });
+    }
 });
 
 // API: ติดตามออเดอร์ด้วยเบอร์โทรศัพท์
 app.get('/api/track', (req, res) => {
-    const phone = req.query.phone;
-    if (!phone) return res.json({ orders: [] });
-    const files = fs.readdirSync('orders').filter(f => f.endsWith('.json'));
-    const orders = files.map(f => {
-        const data = fs.readFileSync(`orders/${f}`);
-        return JSON.parse(data);
-    }).filter(order => order.customer && order.customer.phone === phone);
-    res.json({ orders });
+    try {
+        const phone = req.query.phone;
+        if (!phone) return res.json({ orders: [] });
+        
+        if (!fs.existsSync('orders')) {
+            return res.json({ orders: [] });
+        }
+        
+        const files = fs.readdirSync('orders').filter(f => f.endsWith('.json'));
+        const orders = files.map(f => {
+            const data = fs.readFileSync(`orders/${f}`);
+            return JSON.parse(data);
+        }).filter(order => order.customer && order.customer.phone === phone);
+        res.json({ orders });
+    } catch (error) {
+        console.error('Error tracking orders:', error);
+        res.status(500).json({ error: 'เกิดข้อผิดพลาดในการติดตามออเดอร์' });
+    }
+});
+
+// Error handling middleware
+app.use((error, req, res, next) => {
+    console.error('Unhandled error:', error);
+    res.status(500).json({ error: 'เกิดข้อผิดพลาดในระบบ' });
+});
+
+// 404 handler
+app.use((req, res) => {
+    res.status(404).json({ error: 'ไม่พบหน้าที่ต้องการ' });
 });
 
 app.listen(PORT, () => {
-    console.log(`Server is running on http://localhost:${PORT}`);
+    console.log(`Server is running on port ${PORT}`);
+    console.log(`Environment: ${process.env.NODE_ENV || 'development'}`);
 }); 
