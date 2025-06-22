@@ -8,6 +8,24 @@ const cartItems = document.getElementById('cartItems');
 const totalPriceElement = document.getElementById('totalPrice');
 const checkoutBtn = document.getElementById('checkoutBtn');
 
+// Input validation functions
+function validatePhone(phone) {
+    const phoneRegex = /^[0-9]{10}$/;
+    return phoneRegex.test(phone);
+}
+
+function sanitizeInput(input) {
+    if (typeof input === 'string') {
+        return input.trim().replace(/[<>]/g, '');
+    }
+    return input;
+}
+
+function validateEmail(email) {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return emailRegex.test(email);
+}
+
 // Hamburger menu toggle
 const hamburgerBtn = document.getElementById('hamburgerBtn');
 const hamburgerMenu = document.getElementById('hamburgerMenu');

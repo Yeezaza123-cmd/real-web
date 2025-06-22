@@ -8,13 +8,73 @@ const { MongoClient } = require('mongodb');
 const app = express();
 const PORT = process.env.PORT || 3000;
 
+// Security middleware
+const helmet = require('helmet');
+const rateLimit = require('express-rate-limit');
+const cors = require('cors');
+
+// Apply security middleware
+app.use(helmet({
+    contentSecurityPolicy: {
+        directives: {
+            defaultSrc: ["'self'"],
+            styleSrc: ["'self'", "'unsafe-inline'"],
+            scriptSrc: ["'self'"],
+            imgSrc: ["'self'", "data:", "https:"],
+            connectSrc: ["'self'"],
+            fontSrc: ["'self'"],
+            objectSrc: ["'none'"],
+            mediaSrc: ["'self'"],
+            frameSrc: ["'none'"],
+        },
+    },
+    hsts: {
+        maxAge: 31536000,
+        includeSubDomains: true,
+        preload: true
+    }
+}));
+
+// Rate limiting
+const limiter = rateLimit({
+    windowMs: 15 * 60 * 1000, // 15 minutes
+    max: 100, // limit each IP to 100 requests per windowMs
+    message: 'Too many requests from this IP, please try again later.',
+    standardHeaders: true,
+    legacyHeaders: false,
+});
+
+const authLimiter = rateLimit({
+    windowMs: 15 * 60 * 1000, // 15 minutes
+    max: 5, // limit each IP to 5 requests per windowMs for auth
+    message: 'Too many authentication attempts, please try again later.',
+    standardHeaders: true,
+    legacyHeaders: false,
+});
+
+app.use(limiter);
+app.use('/api/admin', authLimiter);
+
+// CORS configuration
+app.use(cors({
+    origin: process.env.ALLOWED_ORIGINS ? process.env.ALLOWED_ORIGINS.split(',') : ['http://localhost:3000', 'https://real-web-cxbl.onrender.com'],
+    credentials: true,
+    methods: ['GET', 'POST', 'PUT', 'DELETE'],
+    allowedHeaders: ['Content-Type', 'Authorization']
+}));
+
 // MongoDB connection
 let db;
 const MONGODB_URI = process.env.MONGODB_URI || 'mongodb://localhost:27017/plukrak';
 
 async function connectToMongoDB() {
     try {
-        const client = new MongoClient(MONGODB_URI);
+        const client = new MongoClient(MONGODB_URI, {
+            useNewUrlParser: true,
+            useUnifiedTopology: true,
+            serverSelectionTimeoutMS: 5000,
+            socketTimeoutMS: 45000,
+        });
         await client.connect();
         db = client.db();
         console.log('Connected to MongoDB successfully');
@@ -31,10 +91,25 @@ async function connectToMongoDB() {
 }
 
 // Middleware
-app.use(bodyParser.json());
-app.use(bodyParser.urlencoded({ extended: true }));
-app.use(express.static('public'));
-app.use('/orders/slips', express.static('orders/slips'));
+app.use(bodyParser.json({ limit: '10mb' }));
+app.use(bodyParser.urlencoded({ extended: true, limit: '10mb' }));
+app.use(express.static('public', {
+    setHeaders: (res, path) => {
+        if (path.endsWith('.js')) {
+            res.setHeader('Content-Type', 'application/javascript');
+        }
+        if (path.endsWith('.css')) {
+            res.setHeader('Content-Type', 'text/css');
+        }
+    }
+}));
+app.use('/orders/slips', express.static('orders/slips', {
+    setHeaders: (res, path) => {
+        res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate');
+        res.setHeader('Pragma', 'no-cache');
+        res.setHeader('Expires', '0');
+    }
+}));
 
 // ข้อมูลสินค้า
 const products = [
@@ -156,6 +231,46 @@ function calculatePrice(items) {
     return total;
 }
 
+// Input validation functions
+function validateOrder(order) {
+    const errors = [];
+    
+    // Validate customer info
+    if (!order.customer || !order.customer.name || !order.customer.phone) {
+        errors.push('ข้อมูลลูกค้าไม่ครบถ้วน');
+    }
+    
+    if (order.customer && order.customer.phone) {
+        const phoneRegex = /^[0-9]{10}$/;
+        if (!phoneRegex.test(order.customer.phone)) {
+            errors.push('เบอร์โทรศัพท์ไม่ถูกต้อง');
+        }
+    }
+    
+    // Validate items
+    if (!order.items || !Array.isArray(order.items) || order.items.length === 0) {
+        errors.push('ไม่มีสินค้าในออเดอร์');
+    }
+    
+    // Validate delivery info
+    if (!order.delivery || !order.delivery.method) {
+        errors.push('ไม่ระบุวิธีรับของ');
+    }
+    
+    if (order.delivery && order.delivery.method === 'delivery' && !order.delivery.address) {
+        errors.push('ไม่ระบุที่อยู่จัดส่ง');
+    }
+    
+    return errors;
+}
+
+function sanitizeInput(input) {
+    if (typeof input === 'string') {
+        return input.trim().replace(/[<>]/g, '');
+    }
+    return input;
+}
+
 // Routes
 app.get('/', (req, res) => {
     res.sendFile(path.join(__dirname, 'public', 'index.html'));
@@ -183,12 +298,39 @@ app.post('/api/calculate-price', (req, res) => {
 // API: รับออเดอร์ใหม่
 app.post('/api/order', upload.single('slip'), async (req, res) => {
     try {
+        // Validate request
+        if (!req.body.order) {
+            return res.status(400).json({ error: 'ข้อมูลออเดอร์ไม่ครบถ้วน' });
+        }
+        
         const order = JSON.parse(req.body.order);
+        
+        // Sanitize input
+        if (order.customer) {
+            order.customer.name = sanitizeInput(order.customer.name);
+            order.customer.phone = sanitizeInput(order.customer.phone);
+        }
+        
+        if (order.delivery && order.delivery.address) {
+            order.delivery.address = sanitizeInput(order.delivery.address);
+        }
+        
+        // Validate order
+        const validationErrors = validateOrder(order);
+        if (validationErrors.length > 0) {
+            return res.status(400).json({ error: validationErrors.join(', ') });
+        }
+        
         const orderId = order.orderId;
         order.status = 'wait_slip';
         order.createdAt = new Date();
         
         if (req.file) {
+            // Validate file type
+            const allowedTypes = ['image/jpeg', 'image/png', 'image/gif'];
+            if (!allowedTypes.includes(req.file.mimetype)) {
+                return res.status(400).json({ error: 'ประเภทไฟล์ไม่ถูกต้อง' });
+            }
             order.slip = `/orders/slips/${req.file.filename}`;
         }
         
@@ -214,7 +356,9 @@ app.post('/api/order', upload.single('slip'), async (req, res) => {
 app.get('/api/admin/orders', async (req, res) => {
     try {
         const password = req.query.password;
-        if (password !== '123321') return res.status(401).json({ error: 'unauthorized' });
+        if (!password || password !== '123321') {
+            return res.status(401).json({ error: 'unauthorized' });
+        }
         
         let orders = [];
         
@@ -245,6 +389,16 @@ app.post('/api/admin/update-status', async (req, res) => {
     try {
         const { orderId, status, tracking } = req.body;
         
+        // Validate input
+        if (!orderId || !status) {
+            return res.status(400).json({ error: 'ข้อมูลไม่ครบถ้วน' });
+        }
+        
+        const validStatuses = ['wait_slip', 'wait_ship', 'shipped'];
+        if (!validStatuses.includes(status)) {
+            return res.status(400).json({ error: 'สถานะไม่ถูกต้อง' });
+        }
+        
         if (db) {
             // ใช้ MongoDB
             const result = await db.collection('orders').updateOne(
@@ -253,7 +407,7 @@ app.post('/api/admin/update-status', async (req, res) => {
                     $set: { 
                         status: status,
                         updatedAt: new Date(),
-                        ...(tracking && { tracking: tracking })
+                        ...(tracking && { tracking: sanitizeInput(tracking) })
                     }
                 }
             );
@@ -268,7 +422,7 @@ app.post('/api/admin/update-status', async (req, res) => {
             
             const order = JSON.parse(fs.readFileSync(filePath));
             order.status = status;
-            if (tracking) order.tracking = tracking;
+            if (tracking) order.tracking = sanitizeInput(tracking);
             fs.writeFileSync(filePath, JSON.stringify(order, null, 2));
         }
         
@@ -284,6 +438,12 @@ app.get('/api/track', async (req, res) => {
     try {
         const phone = req.query.phone;
         if (!phone) return res.json({ orders: [] });
+        
+        // Validate phone number
+        const phoneRegex = /^[0-9]{10}$/;
+        if (!phoneRegex.test(phone)) {
+            return res.status(400).json({ error: 'เบอร์โทรศัพท์ไม่ถูกต้อง' });
+        }
         
         let orders = [];
         
