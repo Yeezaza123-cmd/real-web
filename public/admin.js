@@ -12,7 +12,6 @@ const adminLoginError = document.getElementById('adminLoginError');
 const adminOrdersList = document.getElementById('adminOrdersList');
 const adminFilter = document.getElementById('adminFilter');
 const tabBtns = document.querySelectorAll('.admin-tab-btn');
-const filterBtns = document.querySelectorAll('.filter-btn');
 
 // ล็อกอิน
 adminLoginBtn.onclick = function() {
@@ -28,10 +27,27 @@ adminLoginBtn.onclick = function() {
                 orders = data;
                 adminLoginSection.style.display = 'none';
                 adminPanelSection.style.display = 'block';
+                
+                // เพิ่ม event listener สำหรับปุ่มฟิลเตอร์หลังจากแสดง admin panel
+                setupFilterButtons();
+                
                 renderOrders();
             }
         });
 };
+
+// ตั้งค่าปุ่มฟิลเตอร์
+function setupFilterButtons() {
+    const filterBtns = document.querySelectorAll('.filter-btn');
+    for (const btn of filterBtns) {
+        btn.onclick = function() {
+            filterBtns.forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            currentFilter = btn.getAttribute('data-filter');
+            renderOrders();
+        };
+    }
+}
 
 // เปลี่ยนแถบ
 for (const btn of tabBtns) {
@@ -47,20 +63,11 @@ for (const btn of tabBtns) {
             adminFilter.style.display = 'none';
             currentFilter = 'all';
             // รีเซ็ตปุ่มฟิลเตอร์
+            const filterBtns = document.querySelectorAll('.filter-btn');
             filterBtns.forEach(b => b.classList.remove('active'));
-            filterBtns[0].classList.add('active');
+            if (filterBtns[0]) filterBtns[0].classList.add('active');
         }
         
-        renderOrders();
-    };
-}
-
-// เปลี่ยนฟิลเตอร์
-for (const btn of filterBtns) {
-    btn.onclick = function() {
-        filterBtns.forEach(b => b.classList.remove('active'));
-        btn.classList.add('active');
-        currentFilter = btn.getAttribute('data-filter');
         renderOrders();
     };
 }
