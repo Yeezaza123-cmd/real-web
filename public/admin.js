@@ -47,6 +47,12 @@ function setupFilterButtons() {
             renderOrders();
         };
     }
+    
+    // ตั้งค่าปุ่มสร้าง PDF
+    const generatePdfBtn = document.getElementById('generatePdfBtn');
+    if (generatePdfBtn) {
+        generatePdfBtn.onclick = generatePdf;
+    }
 }
 
 // เปลี่ยนแถบ
@@ -172,4 +178,106 @@ function reloadOrders() {
             orders = data;
             renderOrders();
         });
+}
+
+// สร้างไฟล์ PDF
+function generatePdf() {
+    const { jsPDF } = window.jspdf;
+    const doc = new jsPDF();
+    
+    // ตั้งค่าขนาดหน้า A4
+    const pageWidth = doc.internal.pageSize.getWidth();
+    const pageHeight = doc.internal.pageSize.getHeight();
+    
+    // ขนาดของแต่ละออเดอร์ (1/6 ของหน้า A4)
+    const orderWidth = pageWidth / 2; // 2 คอลัมน์
+    const orderHeight = pageHeight / 3; // 3 แถว
+    
+    // ตั้งค่าฟอนต์
+    doc.setFont('helvetica');
+    
+    let currentPage = 0;
+    let orderIndex = 0;
+    
+    // เรียงลำดับออเดอร์ตามวันที่
+    const sortedOrders = [...orders].sort((a, b) => 
+        new Date(b.orderDate || 0) - new Date(a.orderDate || 0)
+    );
+    
+    for (const order of sortedOrders) {
+        // ตรวจสอบว่าต้องขึ้นหน้าใหม่หรือไม่
+        if (orderIndex % 6 === 0) {
+            if (currentPage > 0) {
+                doc.addPage();
+            }
+            currentPage++;
+            
+            // หัวข้อหน้า
+            doc.setFontSize(16);
+            doc.setFont('helvetica', 'bold');
+            doc.text('รายการออเดอร์ทั้งหมด - ปลูกรัก', pageWidth / 2, 15, { align: 'center' });
+            doc.setFontSize(10);
+            doc.setFont('helvetica', 'normal');
+            doc.text(`สร้างเมื่อ: ${new Date().toLocaleString('th-TH')}`, pageWidth / 2, 25, { align: 'center' });
+        }
+        
+        // คำนวณตำแหน่งของออเดอร์ในหน้า
+        const row = Math.floor((orderIndex % 6) / 2);
+        const col = (orderIndex % 6) % 2;
+        const x = col * orderWidth + 10;
+        const y = row * orderHeight + 35;
+        
+        // วาดกรอบออเดอร์
+        doc.setDrawColor(200, 200, 200);
+        doc.setLineWidth(0.5);
+        doc.rect(x, y, orderWidth - 20, orderHeight - 15);
+        
+        // ข้อมูลออเดอร์
+        doc.setFontSize(8);
+        doc.setFont('helvetica', 'bold');
+        doc.text(`ออเดอร์ #${order.orderId}`, x + 5, y + 8);
+        
+        doc.setFontSize(6);
+        doc.setFont('helvetica', 'normal');
+        doc.text(`วันที่: ${order.orderDate ? order.orderDate.slice(0, 10) : 'N/A'}`, x + 5, y + 15);
+        doc.text(`ชื่อ: ${order.customer.name}`, x + 5, y + 22);
+        doc.text(`โทร: ${order.customer.phone}`, x + 5, y + 29);
+        
+        // วิธีรับสินค้า
+        const deliveryMethod = order.delivery.method === 'delivery' ? 'จัดส่ง' : 'นัดรับ';
+        doc.text(`วิธีรับ: ${deliveryMethod}`, x + 5, y + 36);
+        
+        // สถานะ
+        let statusText = '';
+        switch(order.status) {
+            case 'wait_slip': statusText = 'รอยืนยันสลิป'; break;
+            case 'wait_ship': statusText = 'รอจัดส่ง'; break;
+            case 'shipped': statusText = 'จัดส่งแล้ว'; break;
+        }
+        doc.setFont('helvetica', 'bold');
+        doc.text(`สถานะ: ${statusText}`, x + 5, y + 43);
+        
+        // รายการสินค้า (แสดงแค่ 2 รายการแรก)
+        doc.setFontSize(5);
+        doc.setFont('helvetica', 'normal');
+        doc.text('สินค้า:', x + 5, y + 50);
+        order.items.slice(0, 2).forEach((item, index) => {
+            const itemText = `${item.name} ${item.size} (x${item.quantity})`;
+            doc.text(itemText, x + 5, y + 55 + (index * 5));
+        });
+        if (order.items.length > 2) {
+            doc.text(`... และอีก ${order.items.length - 2} รายการ`, x + 5, y + 65);
+        }
+        
+        // ราคารวม
+        doc.setFontSize(7);
+        doc.setFont('helvetica', 'bold');
+        doc.text(`รวม: ฿${order.grandTotal}`, x + 5, y + orderHeight - 20);
+        
+        orderIndex++;
+    }
+    
+    // บันทึกไฟล์
+    const fileName = `orders_${new Date().toISOString().slice(0, 10)}.pdf`;
+    doc.save(fileName);
 } 

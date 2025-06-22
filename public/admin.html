@@ -27,6 +27,12 @@
         <section class="admin-panel-section" id="adminPanelSection" style="display:none;">
             <div class="container">
                 <h2>จัดการออเดอร์</h2>
+                
+                <!-- ปุ่มสร้าง PDF -->
+                <div class="admin-actions">
+                    <button id="generatePdfBtn" class="pdf-btn">สร้างไฟล์ PDF รายการออเดอร์</button>
+                </div>
+                
                 <div class="admin-tabs">
                     <button class="admin-tab-btn active" data-tab="wait_slip">รอยืนยันสลิป</button>
                     <button class="admin-tab-btn" data-tab="wait_ship">รอจัดส่ง</button>
@@ -52,6 +58,7 @@
             <p>&copy; 2024 ปลูกรัก. All rights reserved.</p>
         </div>
     </footer>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <script src="admin.js"></script>
 </body>
 </html> 
