@@ -1,0 +1,434 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>จัดการภาพเลื่อน - ปลูกรัก</title>
+    <link rel="icon" type="image/jpeg" href="images/logo.jpg">
+    <link rel="stylesheet" href="styles.css">
+    <style>
+        .image-manager {
+            padding: 4rem 0;
+            background: #e1dfdd;
+            min-height: 100vh;
+        }
+        
+        .image-manager h2 {
+            text-align: center;
+            font-size: 2.5rem;
+            margin-bottom: 3rem;
+            color: #333;
+        }
+        
+        .image-container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            padding: 2rem;
+            border-radius: 15px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+        
+        .upload-section {
+            margin-bottom: 3rem;
+            padding-bottom: 2rem;
+            border-bottom: 2px solid #eee;
+        }
+        
+        .upload-section h3 {
+            margin-bottom: 1.5rem;
+            color: #333;
+            font-size: 1.3rem;
+        }
+        
+        .upload-form {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+        
+        .file-input-group {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            flex-wrap: wrap;
+        }
+        
+        .file-input {
+            flex: 1;
+            min-width: 200px;
+        }
+        
+        .file-input input[type="file"] {
+            width: 100%;
+            padding: 0.75rem;
+            border: 2px dashed #ddd;
+            border-radius: 8px;
+            background: #f9f9f9;
+            cursor: pointer;
+            transition: border-color 0.3s ease;
+        }
+        
+        .file-input input[type="file"]:hover {
+            border-color: #e1595b;
+        }
+        
+        .upload-btn {
+            background: linear-gradient(135deg, #93c7ec 0%, #ffe249 16.67%, #f8a9d9 33.33%, #57d9a9 50%, #cdaff9 66.67%, #fe8510 83.33%, #e1595b 100%);
+            color: #333;
+            border: none;
+            padding: 0.75rem 1.5rem;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-shadow: 1px 1px 2px rgba(255,255,255,0.8);
+            white-space: nowrap;
+        }
+        
+        .upload-btn:hover {
+            transform: scale(1.05);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        }
+        
+        .upload-btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+        
+        .current-images h3 {
+            margin-bottom: 1.5rem;
+            color: #333;
+            font-size: 1.3rem;
+        }
+        
+        .images-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 1rem;
+        }
+        
+        .image-item {
+            position: relative;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            transition: transform 0.3s ease;
+        }
+        
+        .image-item:hover {
+            transform: scale(1.02);
+        }
+        
+        .image-item img {
+            width: 100%;
+            height: 150px;
+            object-fit: cover;
+            display: block;
+        }
+        
+        .image-actions {
+            position: absolute;
+            top: 0.5rem;
+            right: 0.5rem;
+            display: flex;
+            gap: 0.5rem;
+        }
+        
+        .delete-btn {
+            background: rgba(255, 0, 0, 0.8);
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 30px;
+            height: 30px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+            transition: background 0.3s ease;
+        }
+        
+        .delete-btn:hover {
+            background: rgba(255, 0, 0, 1);
+        }
+        
+        .order-btn {
+            background: rgba(0, 0, 0, 0.6);
+            color: white;
+            border: none;
+            border-radius: 4px;
+            padding: 0.25rem 0.5rem;
+            cursor: pointer;
+            font-size: 12px;
+            transition: background 0.3s ease;
+        }
+        
+        .order-btn:hover {
+            background: rgba(0, 0, 0, 0.8);
+        }
+        
+        .image-info {
+            padding: 0.5rem;
+            background: rgba(255, 255, 255, 0.9);
+            font-size: 0.8rem;
+            color: #666;
+        }
+        
+        .loading {
+            text-align: center;
+            padding: 2rem;
+            color: #666;
+        }
+        
+        .error-message {
+            background: #ffebee;
+            color: #c62828;
+            padding: 1rem;
+            border-radius: 8px;
+            margin-top: 1rem;
+            border-left: 4px solid #c62828;
+        }
+        
+        .success-message {
+            background: #e8f5e8;
+            color: #2e7d32;
+            padding: 1rem;
+            border-radius: 8px;
+            margin-top: 1rem;
+            border-left: 4px solid #2e7d32;
+        }
+        
+        .back-btn {
+            display: inline-block;
+            background: rgba(255, 255, 255, 0.9);
+            color: #333;
+            border: 2px solid #e1595b;
+            border-radius: 8px;
+            padding: 0.5rem 1rem;
+            font-size: 1rem;
+            font-weight: bold;
+            text-decoration: none;
+            margin-bottom: 2rem;
+            transition: all 0.3s;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        
+        .back-btn:hover {
+            background: #e1595b;
+            color: white;
+            transform: scale(1.05);
+        }
+        
+        @media (max-width: 768px) {
+            .image-container {
+                margin: 0 1rem;
+                padding: 1rem;
+            }
+            
+            .file-input-group {
+                flex-direction: column;
+                align-items: stretch;
+            }
+            
+            .images-grid {
+                grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="container">
+            <div class="logo-container">
+                <img src="images/logo.jpg" alt="ปลูกรัก" class="logo-img">
+                <span class="admin-text">จัดการภาพ</span>
+            </div>
+        </div>
+    </header>
+
+    <main>
+        <section class="image-manager">
+            <div class="container">
+                <a href="index.html" class="back-btn">← กลับสู่หน้าหลัก</a>
+                
+                <h2>🖼️ จัดการภาพเลื่อน</h2>
+                
+                <div class="image-container">
+                    <!-- ส่วนอัปโหลดภาพ -->
+                    <div class="upload-section">
+                        <h3>📤 อัปโหลดภาพใหม่</h3>
+                        <form class="upload-form" id="uploadForm">
+                            <div class="file-input-group">
+                                <div class="file-input">
+                                    <input type="file" id="imageFile" accept="image/*" required>
+                                </div>
+                                <button type="submit" class="upload-btn" id="uploadBtn">
+                                    อัปโหลดภาพ
+                                </button>
+                            </div>
+                        </form>
+                        <div id="uploadMessage"></div>
+                    </div>
+                    
+                    <!-- ส่วนแสดงภาพปัจจุบัน -->
+                    <div class="current-images">
+                        <h3>🖼️ ภาพปัจจุบัน</h3>
+                        <div id="imagesGrid" class="images-grid">
+                            <div class="loading">กำลังโหลดภาพ...</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer>
+        <div class="container">
+            <p>&copy; 2024 ปลูกรัก. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <script>
+        // โหลดภาพปัจจุบัน
+        function loadImages() {
+            fetch('/api/slider-images')
+                .then(res => res.json())
+                .then(data => {
+                    const imagesGrid = document.getElementById('imagesGrid');
+                    
+                    if (data.images && data.images.length > 0) {
+                        imagesGrid.innerHTML = '';
+                        data.images.forEach((image, index) => {
+                            const imageItem = document.createElement('div');
+                            imageItem.className = 'image-item';
+                            imageItem.innerHTML = `
+                                <img src="${image.url}" alt="ภาพเลื่อน ${index + 1}">
+                                <div class="image-actions">
+                                    <button class="order-btn" onclick="changeOrder('${image.filename}', ${index - 1})" ${index === 0 ? 'disabled' : ''}>↑</button>
+                                    <button class="order-btn" onclick="changeOrder('${image.filename}', ${index + 1)}" ${index === data.images.length - 1 ? 'disabled' : ''}>↓</button>
+                                    <button class="delete-btn" onclick="deleteImage('${image.filename}')">×</button>
+                                </div>
+                                <div class="image-info">
+                                    ${image.filename}<br>
+                                    ลำดับ: ${index + 1}
+                                </div>
+                            `;
+                            imagesGrid.appendChild(imageItem);
+                        });
+                    } else {
+                        imagesGrid.innerHTML = '<div class="loading">ยังไม่มีภาพที่อัปโหลด</div>';
+                    }
+                })
+                .catch(error => {
+                    console.error('Error loading images:', error);
+                    document.getElementById('imagesGrid').innerHTML = '<div class="error-message">เกิดข้อผิดพลาดในการโหลดภาพ</div>';
+                });
+        }
+
+        // อัปโหลดภาพ
+        document.getElementById('uploadForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const fileInput = document.getElementById('imageFile');
+            const uploadBtn = document.getElementById('uploadBtn');
+            const uploadMessage = document.getElementById('uploadMessage');
+            
+            if (!fileInput.files[0]) {
+                showMessage('กรุณาเลือกไฟล์ภาพ', 'error');
+                return;
+            }
+            
+            const formData = new FormData();
+            formData.append('image', fileInput.files[0]);
+            
+            uploadBtn.disabled = true;
+            uploadBtn.textContent = 'กำลังอัปโหลด...';
+            
+            fetch('/api/upload-slider-image', {
+                method: 'POST',
+                body: formData
+            })
+            .then(res => res.json())
+            .then(data => {
+                if (data.success) {
+                    showMessage('อัปโหลดภาพสำเร็จ!', 'success');
+                    fileInput.value = '';
+                    loadImages(); // โหลดภาพใหม่
+                } else {
+                    showMessage(data.error || 'เกิดข้อผิดพลาดในการอัปโหลด', 'error');
+                }
+            })
+            .catch(error => {
+                console.error('Upload error:', error);
+                showMessage('เกิดข้อผิดพลาดในการเชื่อมต่อ', 'error');
+            })
+            .finally(() => {
+                uploadBtn.disabled = false;
+                uploadBtn.textContent = 'อัปโหลดภาพ';
+            });
+        });
+
+        // ลบภาพ
+        function deleteImage(filename) {
+            if (!confirm('คุณต้องการลบภาพนี้หรือไม่?')) return;
+            
+            fetch('/api/delete-slider-image', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ filename })
+            })
+            .then(res => res.json())
+            .then(data => {
+                if (data.success) {
+                    showMessage('ลบภาพสำเร็จ!', 'success');
+                    loadImages();
+                } else {
+                    showMessage(data.error || 'เกิดข้อผิดพลาดในการลบภาพ', 'error');
+                }
+            })
+            .catch(error => {
+                console.error('Delete error:', error);
+                showMessage('เกิดข้อผิดพลาดในการเชื่อมต่อ', 'error');
+            });
+        }
+
+        // เปลี่ยนลำดับภาพ
+        function changeOrder(filename, newIndex) {
+            fetch('/api/change-image-order', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ filename, newIndex })
+            })
+            .then(res => res.json())
+            .then(data => {
+                if (data.success) {
+                    loadImages();
+                } else {
+                    showMessage(data.error || 'เกิดข้อผิดพลาดในการเปลี่ยนลำดับ', 'error');
+                }
+            })
+            .catch(error => {
+                console.error('Order change error:', error);
+                showMessage('เกิดข้อผิดพลาดในการเชื่อมต่อ', 'error');
+            });
+        }
+
+        // แสดงข้อความ
+        function showMessage(message, type) {
+            const uploadMessage = document.getElementById('uploadMessage');
+            uploadMessage.innerHTML = `<div class="${type}-message">${message}</div>`;
+            
+            setTimeout(() => {
+                uploadMessage.innerHTML = '';
+            }, 5000);
+        }
+
+        // โหลดภาพเมื่อหน้าเว็บโหลดเสร็จ
+        document.addEventListener('DOMContentLoaded', loadImages);
+    </script>
+</body>
+</html> 

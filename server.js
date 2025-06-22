@@ -383,6 +383,146 @@ app.get('/api/track', async (req, res) => {
     }
 });
 
+// Multer config สำหรับอัปโหลดภาพเลื่อน
+const sliderStorage = multer.diskStorage({
+    destination: function (req, file, cb) {
+        // สร้างโฟลเดอร์ถ้ายังไม่มี
+        const uploadDir = 'public/slider-images';
+        if (!fs.existsSync(uploadDir)) {
+            fs.mkdirSync(uploadDir, { recursive: true });
+        }
+        cb(null, uploadDir);
+    },
+    filename: function (req, file, cb) {
+        const timestamp = Date.now();
+        const ext = file.originalname.split('.').pop();
+        cb(null, `slider_${timestamp}.${ext}`);
+    }
+});
+
+const sliderUpload = multer({ 
+    storage: sliderStorage,
+    limits: {
+        fileSize: 10 * 1024 * 1024 // จำกัดขนาดไฟล์ 10MB
+    },
+    fileFilter: function (req, file, cb) {
+        // ตรวจสอบประเภทไฟล์
+        if (file.mimetype.startsWith('image/')) {
+            cb(null, true);
+        } else {
+            cb(new Error('อนุญาตเฉพาะไฟล์รูปภาพเท่านั้น'), false);
+        }
+    }
+});
+
+// API: ดึงรายการภาพเลื่อน
+app.get('/api/slider-images', (req, res) => {
+    try {
+        const sliderDir = 'public/slider-images';
+        if (!fs.existsSync(sliderDir)) {
+            return res.json({ images: [] });
+        }
+        
+        const files = fs.readdirSync(sliderDir)
+            .filter(f => f.startsWith('slider_') && /\.(jpg|jpeg|png|gif|webp)$/i.test(f))
+            .sort(); // เรียงตามชื่อไฟล์ (ซึ่งมี timestamp)
+        
+        const images = files.map(filename => ({
+            filename: filename,
+            url: `/slider-images/${filename}`
+        }));
+        
+        res.json({ images });
+    } catch (error) {
+        console.error('Error loading slider images:', error);
+        res.status(500).json({ error: 'เกิดข้อผิดพลาดในการโหลดภาพ' });
+    }
+});
+
+// API: อัปโหลดภาพเลื่อน
+app.post('/api/upload-slider-image', sliderUpload.single('image'), (req, res) => {
+    try {
+        if (!req.file) {
+            return res.status(400).json({ error: 'ไม่พบไฟล์ภาพ' });
+        }
+        
+        res.json({ 
+            success: true, 
+            filename: req.file.filename,
+            url: `/slider-images/${req.file.filename}`
+        });
+    } catch (error) {
+        console.error('Error uploading slider image:', error);
+        res.status(500).json({ error: 'เกิดข้อผิดพลาดในการอัปโหลดภาพ' });
+    }
+});
+
+// API: ลบภาพเลื่อน
+app.post('/api/delete-slider-image', (req, res) => {
+    try {
+        const { filename } = req.body;
+        if (!filename) {
+            return res.status(400).json({ error: 'ไม่พบชื่อไฟล์' });
+        }
+        
+        const filePath = `public/slider-images/${filename}`;
+        if (!fs.existsSync(filePath)) {
+            return res.status(404).json({ error: 'ไม่พบไฟล์' });
+        }
+        
+        fs.unlinkSync(filePath);
+        res.json({ success: true });
+    } catch (error) {
+        console.error('Error deleting slider image:', error);
+        res.status(500).json({ error: 'เกิดข้อผิดพลาดในการลบภาพ' });
+    }
+});
+
+// API: เปลี่ยนลำดับภาพเลื่อน
+app.post('/api/change-image-order', (req, res) => {
+    try {
+        const { filename, newIndex } = req.body;
+        if (!filename || newIndex === undefined) {
+            return res.status(400).json({ error: 'ข้อมูลไม่ครบถ้วน' });
+        }
+        
+        const sliderDir = 'public/slider-images';
+        if (!fs.existsSync(sliderDir)) {
+            return res.status(404).json({ error: 'ไม่พบโฟลเดอร์ภาพ' });
+        }
+        
+        const files = fs.readdirSync(sliderDir)
+            .filter(f => f.startsWith('slider_') && /\.(jpg|jpeg|png|gif|webp)$/i.test(f))
+            .sort();
+        
+        const currentIndex = files.indexOf(filename);
+        if (currentIndex === -1) {
+            return res.status(404).json({ error: 'ไม่พบไฟล์' });
+        }
+        
+        if (newIndex < 0 || newIndex >= files.length) {
+            return res.status(400).json({ error: 'ลำดับไม่ถูกต้อง' });
+        }
+        
+        // สร้างชื่อไฟล์ใหม่ตามลำดับ
+        const ext = filename.split('.').pop();
+        const newFilename = `slider_${newIndex.toString().padStart(10, '0')}.${ext}`;
+        const oldPath = `${sliderDir}/${filename}`;
+        const newPath = `${sliderDir}/${newFilename}`;
+        
+        // เปลี่ยนชื่อไฟล์
+        fs.renameSync(oldPath, newPath);
+        
+        res.json({ success: true });
+    } catch (error) {
+        console.error('Error changing image order:', error);
+        res.status(500).json({ error: 'เกิดข้อผิดพลาดในการเปลี่ยนลำดับ' });
+    }
+});
+
+// Serve slider images
+app.use('/slider-images', express.static('public/slider-images'));
+
 // Error handling middleware
 app.use((error, req, res, next) => {
     console.error('Unhandled error:', error);
