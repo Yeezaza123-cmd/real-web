@@ -3,6 +3,7 @@ let adminPassword = '';
 let orders = [];
 let currentTab = 'wait_slip';
 let currentFilter = 'all';
+let autoRefreshInterval = null;
 
 const adminLoginSection = document.getElementById('adminLoginSection');
 const adminPanelSection = document.getElementById('adminPanelSection');
@@ -31,10 +32,34 @@ adminLoginBtn.onclick = function() {
                 // เพิ่ม event listener สำหรับปุ่มฟิลเตอร์หลังจากแสดง admin panel
                 setupFilterButtons();
                 
+                // เริ่ม auto-refresh
+                startAutoRefresh();
+                
                 renderOrders();
             }
         });
 };
+
+// เริ่ม auto-refresh
+function startAutoRefresh() {
+    // หยุด auto-refresh เดิม (ถ้ามี)
+    if (autoRefreshInterval) {
+        clearInterval(autoRefreshInterval);
+    }
+    
+    // เริ่ม auto-refresh ใหม่ทุก 30 วินาที
+    autoRefreshInterval = setInterval(() => {
+        reloadOrders();
+    }, 30000); // 30 วินาที
+}
+
+// หยุด auto-refresh
+function stopAutoRefresh() {
+    if (autoRefreshInterval) {
+        clearInterval(autoRefreshInterval);
+        autoRefreshInterval = null;
+    }
+}
 
 // ตั้งค่าปุ่มฟิลเตอร์
 function setupFilterButtons() {
@@ -147,13 +172,37 @@ window.showSlipModal = function(slipUrl) {
 // ฟังก์ชันยืนยันสลิป
 window.confirmSlip = function(orderId) {
     if (!confirm('ยืนยันสลิปสำหรับออเดอร์นี้?')) return;
+    
+    // ตรวจสอบสถานะปัจจุบันก่อนอัปเดต
+    const currentOrder = orders.find(o => o.orderId === orderId);
+    if (!currentOrder) {
+        alert('ไม่พบออเดอร์นี้');
+        return;
+    }
+    
+    if (currentOrder.status !== 'wait_slip') {
+        alert('ออเดอร์นี้ได้ถูกยืนยันแล้ว กรุณารีเฟรชหน้าเว็บ');
+        reloadOrders();
+        return;
+    }
+    
     fetch('/api/admin/update-status', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ orderId, status: 'wait_ship' })
     })
     .then(res => res.json())
-    .then(() => reloadOrders());
+    .then(data => {
+        if (data.success) {
+            reloadOrders();
+        } else {
+            alert('เกิดข้อผิดพลาดในการอัปเดตสถานะ');
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        alert('เกิดข้อผิดพลาดในการเชื่อมต่อ');
+    });
 };
 
 // ฟังก์ชันยืนยันจัดส่ง
@@ -162,22 +211,77 @@ window.confirmShip = function(orderId) {
     const input = document.getElementById('tracking_' + orderId);
     if (input) tracking = input.value.trim();
     if (!confirm('ยืนยันจัดส่งออเดอร์นี้?')) return;
+    
+    // ตรวจสอบสถานะปัจจุบันก่อนอัปเดต
+    const currentOrder = orders.find(o => o.orderId === orderId);
+    if (!currentOrder) {
+        alert('ไม่พบออเดอร์นี้');
+        return;
+    }
+    
+    if (currentOrder.status !== 'wait_ship') {
+        alert('ออเดอร์นี้ได้ถูกยืนยันแล้ว กรุณารีเฟรชหน้าเว็บ');
+        reloadOrders();
+        return;
+    }
+    
     fetch('/api/admin/update-status', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ orderId, status: 'shipped', tracking })
     })
     .then(res => res.json())
-    .then(() => reloadOrders());
+    .then(data => {
+        if (data.success) {
+            reloadOrders();
+        } else {
+            alert('เกิดข้อผิดพลาดในการอัปเดตสถานะ');
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        alert('เกิดข้อผิดพลาดในการเชื่อมต่อ');
+    });
 };
 
 // โหลดออเดอร์ใหม่
 function reloadOrders() {
+    // แสดงสถานะการโหลด
+    const loadingIndicator = document.createElement('div');
+    loadingIndicator.id = 'loading-indicator';
+    loadingIndicator.innerHTML = '<div class="loading">กำลังโหลดข้อมูล...</div>';
+    loadingIndicator.style.cssText = 'position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);background:rgba(255,255,255,0.9);padding:20px;border-radius:10px;box-shadow:0 4px 12px rgba(0,0,0,0.15);z-index:9999;';
+    
+    // เพิ่ม loading indicator เฉพาะเมื่อไม่ใช่ auto-refresh
+    if (!autoRefreshInterval) {
+        document.body.appendChild(loadingIndicator);
+    }
+    
     fetch(`/api/admin/orders?password=${encodeURIComponent(adminPassword)}`)
         .then(res => res.json())
         .then(data => {
             orders = data;
             renderOrders();
+            
+            // ลบ loading indicator
+            const indicator = document.getElementById('loading-indicator');
+            if (indicator) {
+                document.body.removeChild(indicator);
+            }
+        })
+        .catch(error => {
+            console.error('Error reloading orders:', error);
+            
+            // ลบ loading indicator
+            const indicator = document.getElementById('loading-indicator');
+            if (indicator) {
+                document.body.removeChild(indicator);
+            }
+            
+            // แสดงข้อความผิดพลาดเฉพาะเมื่อไม่ใช่ auto-refresh
+            if (!autoRefreshInterval) {
+                alert('เกิดข้อผิดพลาดในการโหลดข้อมูล');
+            }
         });
 }
 
@@ -304,4 +408,18 @@ function generatePdf() {
     a.click();
     document.body.removeChild(a);
     URL.revokeObjectURL(url);
-} 
+}
+
+// หยุด auto-refresh เมื่อออกจากหน้าเว็บ
+window.addEventListener('beforeunload', function() {
+    stopAutoRefresh();
+});
+
+// หยุด auto-refresh เมื่อแท็บไม่ active
+document.addEventListener('visibilitychange', function() {
+    if (document.hidden) {
+        stopAutoRefresh();
+    } else if (adminPassword) {
+        startAutoRefresh();
+    }
+}); 
