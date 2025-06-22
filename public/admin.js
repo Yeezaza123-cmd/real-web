@@ -180,104 +180,190 @@ function reloadOrders() {
         });
 }
 
-// สร้างไฟล์ PDF
+// สร้างไฟล์สำหรับพิมพ์
 function generatePdf() {
-    const { jsPDF } = window.jspdf;
-    const doc = new jsPDF();
-    
-    // ตั้งค่าขนาดหน้า A4
-    const pageWidth = doc.internal.pageSize.getWidth();
-    const pageHeight = doc.internal.pageSize.getHeight();
-    
-    // ขนาดของแต่ละออเดอร์ (1/6 ของหน้า A4)
-    const orderWidth = pageWidth / 2; // 2 คอลัมน์
-    const orderHeight = pageHeight / 3; // 3 แถว
-    
-    // ตั้งค่าฟอนต์
-    doc.setFont('helvetica');
-    
-    let currentPage = 0;
-    let orderIndex = 0;
-    
+    // สร้าง HTML content
+    let htmlContent = `
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>รายการออเดอร์ - ปลูกรัก</title>
+    <style>
+        @page {
+            size: A4;
+            margin: 10mm;
+        }
+        body {
+            font-family: 'Sarabun', Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            font-size: 12px;
+        }
+        .header {
+            text-align: center;
+            margin-bottom: 20px;
+            border-bottom: 2px solid #333;
+            padding-bottom: 10px;
+        }
+        .header h1 {
+            margin: 0;
+            font-size: 24px;
+            color: #333;
+        }
+        .header p {
+            margin: 5px 0;
+            font-size: 14px;
+            color: #666;
+        }
+        .orders-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            grid-template-rows: repeat(3, 1fr);
+            gap: 10px;
+            height: calc(100vh - 100px);
+        }
+        .order-card {
+            border: 1px solid #ccc;
+            padding: 8px;
+            border-radius: 5px;
+            background: #f9f9f9;
+            page-break-inside: avoid;
+        }
+        .order-header {
+            font-weight: bold;
+            font-size: 11px;
+            margin-bottom: 5px;
+            color: #333;
+        }
+        .order-info {
+            font-size: 9px;
+            line-height: 1.2;
+            margin-bottom: 3px;
+        }
+        .order-items {
+            font-size: 8px;
+            margin-top: 5px;
+        }
+        .order-total {
+            font-weight: bold;
+            font-size: 10px;
+            color: #d32f2f;
+            margin-top: 5px;
+        }
+        .status {
+            font-weight: bold;
+            font-size: 9px;
+            padding: 2px 4px;
+            border-radius: 3px;
+            display: inline-block;
+            margin-top: 3px;
+        }
+        .status-wait_slip { background: #fff3cd; color: #856404; }
+        .status-wait_ship { background: #d1ecf1; color: #0c5460; }
+        .status-shipped { background: #d4edda; color: #155724; }
+        @media print {
+            body { margin: 0; }
+            .orders-grid { height: 100vh; }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>รายการออเดอร์ทั้งหมด - ปลูกรัก</h1>
+        <p>สร้างเมื่อ: ${new Date().toLocaleString('th-TH')}</p>
+    </div>
+    <div class="orders-grid">
+`;
+
     // เรียงลำดับออเดอร์ตามวันที่
     const sortedOrders = [...orders].sort((a, b) => 
         new Date(b.orderDate || 0) - new Date(a.orderDate || 0)
     );
-    
+
+    let orderIndex = 0;
+    let pageCount = 1;
+
     for (const order of sortedOrders) {
-        // ตรวจสอบว่าต้องขึ้นหน้าใหม่หรือไม่
-        if (orderIndex % 6 === 0) {
-            if (currentPage > 0) {
-                doc.addPage();
-            }
-            currentPage++;
-            
-            // หัวข้อหน้า
-            doc.setFontSize(16);
-            doc.setFont('helvetica', 'bold');
-            doc.text('รายการออเดอร์ทั้งหมด - ปลูกรัก', pageWidth / 2, 15, { align: 'center' });
-            doc.setFontSize(10);
-            doc.setFont('helvetica', 'normal');
-            doc.text(`สร้างเมื่อ: ${new Date().toLocaleString('th-TH')}`, pageWidth / 2, 25, { align: 'center' });
+        // ขึ้นหน้าใหม่ทุก 6 ออเดอร์
+        if (orderIndex > 0 && orderIndex % 6 === 0) {
+            htmlContent += `
+    </div>
+    <div style="page-break-before: always;"></div>
+    <div class="header">
+        <h1>รายการออเดอร์ทั้งหมด - ปลูกรัก (หน้า ${++pageCount})</h1>
+        <p>สร้างเมื่อ: ${new Date().toLocaleString('th-TH')}</p>
+    </div>
+    <div class="orders-grid">
+`;
         }
-        
-        // คำนวณตำแหน่งของออเดอร์ในหน้า
-        const row = Math.floor((orderIndex % 6) / 2);
-        const col = (orderIndex % 6) % 2;
-        const x = col * orderWidth + 10;
-        const y = row * orderHeight + 35;
-        
-        // วาดกรอบออเดอร์
-        doc.setDrawColor(200, 200, 200);
-        doc.setLineWidth(0.5);
-        doc.rect(x, y, orderWidth - 20, orderHeight - 15);
-        
-        // ข้อมูลออเดอร์
-        doc.setFontSize(8);
-        doc.setFont('helvetica', 'bold');
-        doc.text(`ออเดอร์ #${order.orderId}`, x + 5, y + 8);
-        
-        doc.setFontSize(6);
-        doc.setFont('helvetica', 'normal');
-        doc.text(`วันที่: ${order.orderDate ? order.orderDate.slice(0, 10) : 'N/A'}`, x + 5, y + 15);
-        doc.text(`ชื่อ: ${order.customer.name}`, x + 5, y + 22);
-        doc.text(`โทร: ${order.customer.phone}`, x + 5, y + 29);
-        
+
         // วิธีรับสินค้า
         const deliveryMethod = order.delivery.method === 'delivery' ? 'จัดส่ง' : 'นัดรับ';
-        doc.text(`วิธีรับ: ${deliveryMethod}`, x + 5, y + 36);
+        
+        // สถานที่
+        const location = order.delivery.method === 'delivery' 
+            ? order.delivery.address 
+            : order.delivery.pickupLocation;
         
         // สถานะ
         let statusText = '';
+        let statusClass = '';
         switch(order.status) {
-            case 'wait_slip': statusText = 'รอยืนยันสลิป'; break;
-            case 'wait_ship': statusText = 'รอจัดส่ง'; break;
-            case 'shipped': statusText = 'จัดส่งแล้ว'; break;
+            case 'wait_slip': 
+                statusText = 'รอยืนยันสลิป'; 
+                statusClass = 'status-wait_slip';
+                break;
+            case 'wait_ship': 
+                statusText = 'รอจัดส่ง'; 
+                statusClass = 'status-wait_ship';
+                break;
+            case 'shipped': 
+                statusText = 'จัดส่งแล้ว'; 
+                statusClass = 'status-shipped';
+                break;
         }
-        doc.setFont('helvetica', 'bold');
-        doc.text(`สถานะ: ${statusText}`, x + 5, y + 43);
         
         // รายการสินค้า (แสดงแค่ 2 รายการแรก)
-        doc.setFontSize(5);
-        doc.setFont('helvetica', 'normal');
-        doc.text('สินค้า:', x + 5, y + 50);
-        order.items.slice(0, 2).forEach((item, index) => {
-            const itemText = `${item.name} ${item.size} (x${item.quantity})`;
-            doc.text(itemText, x + 5, y + 55 + (index * 5));
-        });
-        if (order.items.length > 2) {
-            doc.text(`... และอีก ${order.items.length - 2} รายการ`, x + 5, y + 65);
-        }
-        
-        // ราคารวม
-        doc.setFontSize(7);
-        doc.setFont('helvetica', 'bold');
-        doc.text(`รวม: ฿${order.grandTotal}`, x + 5, y + orderHeight - 20);
-        
+        const itemsText = order.items.slice(0, 2).map(item => 
+            `${item.name} ${item.size} (x${item.quantity})`
+        ).join('<br>');
+        const moreItems = order.items.length > 2 ? `<br>... และอีก ${order.items.length - 2} รายการ` : '';
+
+        htmlContent += `
+        <div class="order-card">
+            <div class="order-header">ออเดอร์ #${order.orderId}</div>
+            <div class="order-info">วันที่: ${order.orderDate ? order.orderDate.slice(0, 10) : 'N/A'}</div>
+            <div class="order-info">ชื่อ: ${order.customer.name}</div>
+            <div class="order-info">โทร: ${order.customer.phone}</div>
+            <div class="order-info">วิธีรับ: ${deliveryMethod}</div>
+            <div class="order-info">สถานที่: ${location}</div>
+            <div class="status ${statusClass}">${statusText}</div>
+            <div class="order-items">
+                <strong>สินค้า:</strong><br>
+                ${itemsText}${moreItems}
+            </div>
+            <div class="order-total">รวม: ฿${order.grandTotal}</div>
+        </div>
+`;
+
         orderIndex++;
     }
-    
-    // บันทึกไฟล์
-    const fileName = `orders_${new Date().toISOString().slice(0, 10)}.pdf`;
-    doc.save(fileName);
+
+    htmlContent += `
+    </div>
+</body>
+</html>`;
+
+    // สร้างไฟล์ HTML และดาวน์โหลด
+    const blob = new Blob([htmlContent], { type: 'text/html;charset=utf-8' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `orders_${new Date().toISOString().slice(0, 10)}.html`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
 } 
