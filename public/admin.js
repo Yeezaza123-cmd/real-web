@@ -199,23 +199,17 @@ function generatePdf() {
             font-family: 'Sarabun', Arial, sans-serif;
             margin: 0;
             padding: 0;
-            font-size: 14px;
+            font-size: 18px;
         }
-        .header {
+        .size-table {
             text-align: center;
             margin-bottom: 20px;
-            border-bottom: 2px solid #333;
-            padding-bottom: 10px;
+            page-break-after: always;
         }
-        .header h1 {
-            margin: 0;
-            font-size: 26px;
-            color: #333;
-        }
-        .header p {
-            margin: 5px 0;
-            font-size: 16px;
-            color: #666;
+        .size-table img {
+            max-width: 100%;
+            height: auto;
+            border: 1px solid #ccc;
         }
         .orders-grid {
             display: grid;
@@ -233,22 +227,22 @@ function generatePdf() {
         }
         .order-header {
             font-weight: bold;
-            font-size: 13px;
+            font-size: 17px;
             margin-bottom: 5px;
             color: #333;
         }
         .order-info {
-            font-size: 11px;
+            font-size: 15px;
             line-height: 1.2;
             margin-bottom: 3px;
         }
         .order-items {
-            font-size: 10px;
+            font-size: 14px;
             margin-top: 5px;
         }
         .order-total {
             font-weight: bold;
-            font-size: 12px;
+            font-size: 16px;
             color: #d32f2f;
             margin-top: 5px;
         }
@@ -270,9 +264,8 @@ function generatePdf() {
     </style>
 </head>
 <body>
-    <div class="header">
-        <h1>รายการออเดอร์ทั้งหมด - ปลูกรัก</h1>
-        <p>สร้างเมื่อ: ${new Date().toLocaleString('th-TH')}</p>
+    <div class="size-table">
+        <img src="size_table.jpg" alt="ตารางขนาดเสื้อ">
     </div>
     <div class="orders-grid">
 `;
@@ -282,19 +275,17 @@ function generatePdf() {
         new Date(b.orderDate || 0) - new Date(a.orderDate || 0)
     );
 
-    let orderIndex = 0;
-    let pageCount = 1;
+    // กรองเฉพาะออเดอร์ที่มีสถานะ "รอจัดส่ง"
+    const waitShipOrders = sortedOrders.filter(order => order.status === 'wait_ship');
 
-    for (const order of sortedOrders) {
+    let orderIndex = 0;
+
+    for (const order of waitShipOrders) {
         // ขึ้นหน้าใหม่ทุก 6 ออเดอร์
         if (orderIndex > 0 && orderIndex % 6 === 0) {
             htmlContent += `
     </div>
     <div style="page-break-before: always;"></div>
-    <div class="header">
-        <h1>รายการออเดอร์ทั้งหมด - ปลูกรัก (หน้า ${++pageCount})</h1>
-        <p>สร้างเมื่อ: ${new Date().toLocaleString('th-TH')}</p>
-    </div>
     <div class="orders-grid">
 `;
         }
