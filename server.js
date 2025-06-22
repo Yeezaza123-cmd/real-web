@@ -3,89 +3,108 @@ const bodyParser = require('body-parser');
 const path = require('path');
 const fs = require('fs');
 const multer = require('multer');
-const { MongoClient, ServerApiVersion } = require('mongodb');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-// MongoDB connection
+// MongoDB Atlas Data API
 let db;
-// สำหรับ MongoDB Atlas ให้ตั้งค่า MONGODB_URI ใน environment variables
-// ตัวอย่าง: mongodb+srv://username:password@cluster.mongodb.net/plukrak?retryWrites=true&w=majority
-const MONGODB_URI = process.env.MONGODB_URI || 'mongodb+srv://thananchaipav66:auxn41utvOxwLfrc@cluster0.qj7yxt0.mongodb.net/plukrak?retryWrites=true&w=majority';
+const MONGODB_API_KEY = process.env.MONGODB_API_KEY || 'your-api-key';
+const MONGODB_CLUSTER_URL = process.env.MONGODB_CLUSTER_URL || 'https://data.mongodb-api.com/app/data-cnksbrf/endpoint/data/v1';
+const MONGODB_DATABASE = 'plukrak';
+const MONGODB_COLLECTION = 'orders';
 
 async function connectToMongoDB() {
     try {
-        // ตรวจสอบว่ามี MONGODB_URI หรือไม่
-        if (!process.env.MONGODB_URI) {
-            console.log('MONGODB_URI not found, using file system storage');
+        // ตรวจสอบว่ามี MONGODB_API_KEY หรือไม่
+        if (!process.env.MONGODB_API_KEY) {
+            console.log('MONGODB_API_KEY not found, using file system storage');
             return;
         }
         
-        const client = new MongoClient(MONGODB_URI, {
-            serverApi: {
-                version: ServerApiVersion.v1,
-                strict: true,
-                deprecationErrors: true,
-            },
-            ssl: true,
-            tls: true,
-            tlsAllowInvalidCertificates: true,
-            tlsAllowInvalidHostnames: true,
-            serverSelectionTimeoutMS: 30000,
-            connectTimeoutMS: 30000,
-            socketTimeoutMS: 45000,
-            maxPoolSize: 1,
-            minPoolSize: 0,
-        });
-        
-        await client.connect();
-        db = client.db();
-        console.log('Connected to MongoDB Atlas successfully');
-        
-        // สร้าง index สำหรับการค้นหา
-        await db.collection('orders').createIndex({ 'customer.phone': 1 });
-        await db.collection('orders').createIndex({ orderId: 1 });
+        console.log('Connected to MongoDB Atlas Data API successfully');
         
         // ย้ายข้อมูลจากไฟล์ JSON ไป MongoDB (ถ้ามี)
         await migrateDataFromFiles();
         
     } catch (error) {
         console.error('MongoDB connection error:', error);
-        // ถ้าไม่สามารถเชื่อมต่อ MongoDB ได้ ให้ใช้ไฟล์ JSON แทน
         console.log('Falling back to file system storage');
     }
 }
 
-// ฟังก์ชันย้ายข้อมูลจากไฟล์ JSON ไป MongoDB
-async function migrateDataFromFiles() {
+// ฟังก์ชัน MongoDB Data API
+async function mongoInsertOne(document) {
     try {
-        if (!fs.existsSync('orders')) return;
+        const response = await fetch(`${MONGODB_CLUSTER_URL}/action/insertOne`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'api-key': MONGODB_API_KEY,
+            },
+            body: JSON.stringify({
+                dataSource: 'Cluster0',
+                database: MONGODB_DATABASE,
+                collection: MONGODB_COLLECTION,
+                document: document
+            })
+        });
         
-        const files = fs.readdirSync('orders').filter(f => f.endsWith('.json'));
-        if (files.length === 0) return;
-        
-        console.log(`Found ${files.length} orders to migrate...`);
-        
-        for (const file of files) {
-            try {
-                const data = fs.readFileSync(`orders/${file}`);
-                const order = JSON.parse(data);
-                
-                // ตรวจสอบว่ามีใน MongoDB แล้วหรือไม่
-                const existing = await db.collection('orders').findOne({ orderId: order.orderId });
-                if (!existing) {
-                    await db.collection('orders').insertOne(order);
-                    console.log(`Migrated order: ${order.orderId}`);
-                }
-            } catch (err) {
-                console.error(`Error migrating ${file}:`, err);
-            }
-        }
-        
-        console.log('Data migration completed');
+        const result = await response.json();
+        return result;
     } catch (error) {
-        console.error('Error during data migration:', error);
+        console.error('MongoDB insert error:', error);
+        throw error;
+    }
+}
+
+async function mongoFind(query = {}) {
+    try {
+        const response = await fetch(`${MONGODB_CLUSTER_URL}/action/find`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'api-key': MONGODB_API_KEY,
+            },
+            body: JSON.stringify({
+                dataSource: 'Cluster0',
+                database: MONGODB_DATABASE,
+                collection: MONGODB_COLLECTION,
+                filter: query,
+                sort: { createdAt: -1 }
+            })
+        });
+        
+        const result = await response.json();
+        return result.documents || [];
+    } catch (error) {
+        console.error('MongoDB find error:', error);
+        throw error;
+    }
+}
+
+async function mongoUpdateOne(filter, update) {
+    try {
+        const response = await fetch(`${MONGODB_CLUSTER_URL}/action/updateOne`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'api-key': MONGODB_API_KEY,
+            },
+            body: JSON.stringify({
+                dataSource: 'Cluster0',
+                database: MONGODB_DATABASE,
+                collection: MONGODB_COLLECTION,
+                filter: filter,
+                update: { $set: update }
+            })
+        });
+        
+        const result = await response.json();
+        return result;
+    } catch (error) {
+        console.error('MongoDB update error:', error);
+        throw error;
     }
 }
 
@@ -253,7 +272,7 @@ app.post('/api/order', upload.single('slip'), async (req, res) => {
         
         if (db) {
             // ใช้ MongoDB
-            await db.collection('orders').insertOne(order);
+            await mongoInsertOne(order);
         } else {
             // Fallback ใช้ไฟล์ JSON
             if (!fs.existsSync('orders')) {
@@ -279,7 +298,7 @@ app.get('/api/admin/orders', async (req, res) => {
         
         if (db) {
             // ใช้ MongoDB
-            orders = await db.collection('orders').find({}).sort({ createdAt: -1 }).toArray();
+            orders = await mongoFind();
         } else {
             // Fallback ใช้ไฟล์ JSON
             if (!fs.existsSync('orders')) {
@@ -306,7 +325,7 @@ app.post('/api/admin/update-status', async (req, res) => {
         
         if (db) {
             // ใช้ MongoDB
-            const result = await db.collection('orders').updateOne(
+            await mongoUpdateOne(
                 { orderId: orderId },
                 { 
                     $set: { 
@@ -316,10 +335,6 @@ app.post('/api/admin/update-status', async (req, res) => {
                     }
                 }
             );
-            
-            if (result.matchedCount === 0) {
-                return res.status(404).json({ error: 'not found' });
-            }
         } else {
             // Fallback ใช้ไฟล์ JSON
             const filePath = `orders/${orderId}.json`;
@@ -348,10 +363,7 @@ app.get('/api/track', async (req, res) => {
         
         if (db) {
             // ใช้ MongoDB
-            orders = await db.collection('orders')
-                .find({ 'customer.phone': phone })
-                .sort({ createdAt: -1 })
-                .toArray();
+            orders = await mongoFind({ 'customer.phone': phone });
         } else {
             // Fallback ใช้ไฟล์ JSON
             if (!fs.existsSync('orders')) {
