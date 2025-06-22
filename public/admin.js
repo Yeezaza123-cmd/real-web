@@ -64,7 +64,7 @@ function renderOrders() {
                     เบอร์โทร: ${order.customer.phone}<br>
                     วิธีรับสินค้า: ${order.delivery.method === 'delivery' ? 'จัดส่ง' : 'นัดรับ'}<br>
                     ${order.delivery.method === 'delivery' ? `ที่อยู่: ${order.delivery.address}` : ''}
-                    ${order.delivery.method === 'pickup' ? `ที่นัดรับ: ${order.delivery.pickupLocation}${order.delivery.otherLocation ? ' (' + order.delivery.otherLocation + ')' : ''}` : ''}
+                    ${order.delivery.method === 'pickup' ? `ที่นัดรับ: ${order.delivery.pickupLocation}` : ''}
                 </div>
                 <div class="admin-order-items">
                     <strong>รายการสินค้า</strong>
