@@ -108,6 +108,7 @@ function renderOrders() {
                     เบอร์โทร: ${order.customer.phone}<br>
                     วิธีรับสินค้า: ${order.delivery.method === 'delivery' ? 'จัดส่ง' : 'นัดรับ'}<br>
                     ${order.delivery.method === 'delivery' ? `ที่อยู่: ${order.delivery.address}` : ''}
+                    ${order.delivery.method === 'delivery' ? `รหัสไปรษณีย์: ${order.delivery.postalCode}` : ''}
                     ${order.delivery.method === 'pickup' ? `ที่นัดรับ: ${order.delivery.pickupLocation}` : ''}
                 </div>
                 <div class="admin-order-items">
@@ -204,41 +205,39 @@ function generatePdf() {
         .orders-grid {
             display: grid;
             grid-template-columns: 1fr 1fr;
-            grid-template-rows: repeat(3, 1fr);
-            gap: 10px;
-            height: calc(100vh - 100px);
+            gap: 15px;
         }
         .order-card {
             border: 1px solid #ccc;
-            padding: 8px;
-            border-radius: 5px;
+            padding: 12px;
+            border-radius: 8px;
             background: #f9f9f9;
             page-break-inside: avoid;
+            margin-bottom: 15px;
         }
         .order-header {
             font-weight: bold;
             font-size: 17px;
-            margin-bottom: 5px;
+            margin-bottom: 8px;
             color: #333;
         }
         .order-info {
             font-size: 15px;
-            line-height: 1.2;
-            margin-bottom: 3px;
+            line-height: 1.3;
+            margin-bottom: 5px;
         }
         .order-items {
             font-size: 14px;
-            margin-top: 5px;
+            margin-top: 8px;
         }
         .order-total {
             font-weight: bold;
             font-size: 16px;
             color: #d32f2f;
-            margin-top: 5px;
+            margin-top: 8px;
         }
         @media print {
             body { margin: 0; }
-            .orders-grid { height: 100vh; }
         }
     </style>
 </head>
@@ -257,15 +256,6 @@ function generatePdf() {
     let orderIndex = 0;
 
     for (const order of waitShipOrders) {
-        // ขึ้นหน้าใหม่ทุก 6 ออเดอร์
-        if (orderIndex > 0 && orderIndex % 6 === 0) {
-            htmlContent += `
-    </div>
-    <div style="page-break-before: always;"></div>
-    <div class="orders-grid">
-`;
-        }
-
         // วิธีรับสินค้า
         const deliveryMethod = order.delivery.method === 'delivery' ? 'จัดส่ง' : 'นัดรับ';
         
@@ -274,11 +264,10 @@ function generatePdf() {
             ? order.delivery.address 
             : order.delivery.pickupLocation;
         
-        // รายการสินค้า (แสดงแค่ 2 รายการแรก)
-        const itemsText = order.items.slice(0, 2).map(item => 
+        // รายการสินค้า (แสดงทั้งหมด)
+        const itemsText = order.items.map(item => 
             `${item.name} ${item.size} (x${item.quantity})`
         ).join('<br>');
-        const moreItems = order.items.length > 2 ? `<br>... และอีก ${order.items.length - 2} รายการ` : '';
 
         htmlContent += `
         <div class="order-card">
@@ -288,9 +277,10 @@ function generatePdf() {
             <div class="order-info">โทร: ${order.customer.phone}</div>
             <div class="order-info">วิธีรับ: ${deliveryMethod}</div>
             <div class="order-info">สถานที่: ${location}</div>
+            ${order.delivery.method === 'delivery' ? `<div class="order-info">รหัสไปรษณีย์: ${order.delivery.postalCode}</div>` : ''}
             <div class="order-items">
                 <strong>สินค้า:</strong><br>
-                ${itemsText}${moreItems}
+                ${itemsText}
             </div>
             <div class="order-total">รวม: ฿${order.grandTotal}</div>
         </div>

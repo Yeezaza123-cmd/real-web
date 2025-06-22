@@ -40,7 +40,7 @@ async function loadProducts() {
                 color: 'black',
                 price: 229,
                 image: '/images/black.png',
-                sizes: ['SS', 'S', 'M', 'L', 'XL', '2XL', '3XL', '4XL', '5XL']
+                sizes: ['S', 'M', 'L', 'XL', '2XL', '3XL']
             },
             {
                 id: 2,
@@ -48,7 +48,7 @@ async function loadProducts() {
                 color: 'brown',
                 price: 229,
                 image: '/images/brown.png',
-                sizes: ['SS', 'S', 'M', 'L', 'XL', '2XL', '3XL', '4XL', '5XL']
+                sizes: ['S', 'M', 'L', 'XL', '2XL', '3XL']
             },
             {
                 id: 3,
@@ -56,7 +56,7 @@ async function loadProducts() {
                 color: 'white',
                 price: 229,
                 image: '/images/white.png',
-                sizes: ['SS', 'S', 'M', 'L', 'XL', '2XL', '3XL', '4XL', '5XL']
+                sizes: ['S', 'M', 'L', 'XL', '2XL', '3XL']
             }
         ];
         displayProducts();
@@ -83,7 +83,10 @@ function displayProducts() {
                 <div class="product-controls">
                     <select class="size-select" data-product-id="${product.id}">
                         <option value="">เลือกไซส์</option>
-                        ${product.sizes.map(size => `<option value="${size}">${size}</option>`).join('')}
+                        ${product.sizes.map(size => {
+                            const sizePrice = ['2XL', '3XL'].includes(size) ? product.price + 20 : product.price;
+                            return `<option value="${size}">${size} (${sizePrice})</option>`;
+                        }).join('')}
                     </select>
                     <div class="quantity-controls">
                         <button class="quantity-btn" onclick="changeQuantity(${product.id}, -1)">-</button>
@@ -168,7 +171,7 @@ function updateCartDisplay() {
         const cartItem = document.createElement('div');
         cartItem.className = 'cart-item';
         
-        const itemPrice = ['2XL', '3XL', '4XL', '5XL'].includes(item.size) ? item.price + 20 : item.price;
+        const itemPrice = ['2XL', '3XL'].includes(item.size) ? item.price + 20 : item.price;
         const totalItemPrice = itemPrice * item.quantity;
         
         cartItem.innerHTML = `
@@ -227,7 +230,7 @@ function calculateTotal() {
             
             // คำนวณราคาเพิ่มสำหรับไซส์ใหญ่
             promotionItems.forEach(item => {
-                if (['2XL', '3XL', '4XL', '5XL'].includes(item.size)) {
+                if (['2XL', '3XL'].includes(item.size)) {
                     extraPrice += 20;
                 }
             });
@@ -239,7 +242,7 @@ function calculateTotal() {
         for (let i = promotionCount * 3; i < itemCount; i++) {
             let item = allItems[i];
             let itemPrice = item.price;
-            if (['2XL', '3XL', '4XL', '5XL'].includes(item.size)) {
+            if (['2XL', '3XL'].includes(item.size)) {
                 itemPrice += 20;
             }
             total += itemPrice;
@@ -248,7 +251,7 @@ function calculateTotal() {
         // คำนวณราคาปกติ
         allItems.forEach(item => {
             let itemPrice = item.price;
-            if (['2XL', '3XL', '4XL', '5XL'].includes(item.size)) {
+            if (['2XL', '3XL'].includes(item.size)) {
                 itemPrice += 20;
             }
             total += itemPrice;
