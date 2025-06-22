@@ -117,15 +117,38 @@ function renderOrders() {
         adminOrdersList.innerHTML = '<p style="text-align:center;color:#888;">ไม่มีออเดอร์ในสถานะนี้</p>';
         return;
     }
-    filtered.sort((a, b) => (b.orderDate || '').localeCompare(a.orderDate || ''));
+    filtered.sort((a, b) => new Date(b.orderDate || 0) - new Date(a.orderDate || 0));
     for (const order of filtered) {
         const card = document.createElement('div');
         card.className = 'admin-order-card';
         card.innerHTML = `
             <div class="admin-order-header">
                 <span>ออเดอร์ #${order.orderId}</span>
-                <span>${order.orderDate ? order.orderDate.slice(0, 10) : ''}</span>
+                <span>${order.orderDate ? new Date(order.orderDate).toLocaleString('th-TH', { 
+                    year: 'numeric', 
+                    month: '2-digit', 
+                    day: '2-digit',
+                    hour: '2-digit',
+                    minute: '2-digit',
+                    timeZone: 'Asia/Bangkok'
+                }) : ''}</span>
             </div>
+            ${order.status === 'deleted' && order.deletedAt ? `<div style="color: #dc3545; font-size: 0.9rem; margin-bottom: 0.5rem;">ถูกลบเมื่อ: ${new Date(order.deletedAt).toLocaleString('th-TH', { 
+                year: 'numeric', 
+                month: '2-digit', 
+                day: '2-digit',
+                hour: '2-digit',
+                minute: '2-digit',
+                timeZone: 'Asia/Bangkok'
+            })}</div>` : ''}
+            ${order.restoredAt ? `<div style="color: #17a2b8; font-size: 0.9rem; margin-bottom: 0.5rem;">กู้คืนเมื่อ: ${new Date(order.restoredAt).toLocaleString('th-TH', { 
+                year: 'numeric', 
+                month: '2-digit', 
+                day: '2-digit',
+                hour: '2-digit',
+                minute: '2-digit',
+                timeZone: 'Asia/Bangkok'
+            })}</div>` : ''}
             <div class="admin-order-info">
                 <div class="admin-order-customer">
                     <strong>ข้อมูลลูกค้า</strong><br>
@@ -150,6 +173,8 @@ function renderOrders() {
                 ${order.status === 'wait_ship' && order.delivery.method === 'delivery' ? `<input type="text" id="tracking_${order.orderId}" placeholder="เลขพัสดุ"><button class="ship" onclick="confirmShip('${order.orderId}')">ยืนยันจัดส่ง</button>` : ''}
                 ${order.status === 'wait_ship' && order.delivery.method === 'pickup' ? `<button class="ship" onclick="confirmShip('${order.orderId}')">ยืนยันนัดรับแล้ว</button>` : ''}
                 ${order.status === 'shipped' && order.tracking ? `<span>เลขพัสดุ: ${order.tracking}</span>` : ''}
+                ${order.status !== 'deleted' ? `<button class="delete-order" onclick="deleteOrder('${order.orderId}')">ลบออเดอร์</button>` : ''}
+                ${order.status === 'deleted' ? `<span style="color: #dc3545; font-weight: bold;">ถูกลบแล้ว</span><button class="restore-order" onclick="restoreOrder('${order.orderId}')">กู้คืน</button>` : ''}
             </div>
         `;
         adminOrdersList.appendChild(card);
@@ -236,6 +261,78 @@ window.confirmShip = function(orderId) {
             reloadOrders();
         } else {
             alert('เกิดข้อผิดพลาดในการอัปเดตสถานะ');
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        alert('เกิดข้อผิดพลาดในการเชื่อมต่อ');
+    });
+};
+
+// ฟังก์ชันลบออเดอร์
+window.deleteOrder = function(orderId) {
+    if (!confirm('คุณต้องการลบออเดอร์ #' + orderId + ' หรือไม่?\n\nการดำเนินการนี้ไม่สามารถยกเลิกได้!')) {
+        return;
+    }
+    
+    // ตรวจสอบสถานะปัจจุบัน
+    const currentOrder = orders.find(o => o.orderId === orderId);
+    if (!currentOrder) {
+        alert('ไม่พบออเดอร์นี้');
+        return;
+    }
+    
+    // ถามยืนยันเพิ่มเติมสำหรับออเดอร์ที่จัดส่งแล้ว
+    if (currentOrder.status === 'shipped') {
+        if (!confirm('ออเดอร์นี้ได้จัดส่งแล้ว คุณแน่ใจหรือไม่ที่จะลบ?')) {
+            return;
+        }
+    }
+    
+    fetch('/api/admin/delete-order', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ 
+            orderId: orderId,
+            password: adminPassword 
+        })
+    })
+    .then(res => res.json())
+    .then(data => {
+        if (data.success) {
+            alert('ลบออเดอร์สำเร็จ');
+            reloadOrders();
+        } else {
+            alert(data.error || 'เกิดข้อผิดพลาดในการลบออเดอร์');
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        alert('เกิดข้อผิดพลาดในการเชื่อมต่อ');
+    });
+};
+
+// ฟังก์ชันกู้คืนออเดอร์
+window.restoreOrder = function(orderId) {
+    if (!confirm('คุณต้องการกู้คืนออเดอร์ #' + orderId + ' หรือไม่?')) {
+        return;
+    }
+    
+    fetch('/api/admin/restore-order', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ 
+            orderId: orderId,
+            password: adminPassword 
+        })
+    })
+    .then(res => res.json())
+    .then(data => {
+        if (data.success) {
+            alert('กู้คืนออเดอร์สำเร็จ');
+            reloadOrders();
+        } else {
+            alert(data.error || 'เกิดข้อผิดพลาดในการกู้คืนออเดอร์');
         }
     })
     .catch(error => {
@@ -376,7 +473,14 @@ function generatePdf() {
         htmlContent += `
         <div class="order-card">
             <div class="order-header">ออเดอร์ #${order.orderId}</div>
-            <div class="order-info">วันที่: ${order.orderDate ? order.orderDate.slice(0, 10) : 'N/A'}</div>
+            <div class="order-info">วันที่: ${order.orderDate ? new Date(order.orderDate).toLocaleString('th-TH', { 
+                year: 'numeric', 
+                month: '2-digit', 
+                day: '2-digit',
+                hour: '2-digit',
+                minute: '2-digit',
+                timeZone: 'Asia/Bangkok'
+            }) : 'N/A'}</div>
             <div class="order-info">ชื่อ: ${order.customer.name}</div>
             <div class="order-info">โทร: ${order.customer.phone}</div>
             <div class="order-info">วิธีรับ: ${deliveryMethod}</div>
@@ -403,7 +507,15 @@ function generatePdf() {
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
-    a.download = `orders_${new Date().toISOString().slice(0, 10)}.html`;
+    const now = new Date().toLocaleString('th-TH', { 
+        year: 'numeric', 
+        month: '2-digit', 
+        day: '2-digit',
+        hour: '2-digit',
+        minute: '2-digit',
+        timeZone: 'Asia/Bangkok'
+    }).replace(/[/:]/g, '-').replace(/\s/g, '_');
+    a.download = `orders_${now}.html`;
     document.body.appendChild(a);
     a.click();
     document.body.removeChild(a);

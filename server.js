@@ -353,6 +353,107 @@ app.post('/api/admin/update-status', async (req, res) => {
     }
 });
 
+// API: ลบออเดอร์ (admin)
+app.post('/api/admin/delete-order', async (req, res) => {
+    try {
+        const { orderId, password } = req.body;
+        
+        // ตรวจสอบรหัสผ่าน
+        if (password !== '123321') {
+            return res.status(401).json({ error: 'unauthorized' });
+        }
+        
+        if (db) {
+            // ใช้ MongoDB
+            const result = await mongoUpdateOne(
+                { orderId: orderId },
+                { $set: { status: 'deleted', deletedAt: new Date() } }
+            );
+            
+            if (result.matchedCount === 0) {
+                return res.status(404).json({ error: 'ไม่พบออเดอร์' });
+            }
+        } else {
+            // Fallback ใช้ไฟล์ JSON
+            const filePath = `orders/${orderId}.json`;
+            if (!fs.existsSync(filePath)) {
+                return res.status(404).json({ error: 'ไม่พบออเดอร์' });
+            }
+            
+            // อ่านข้อมูลออเดอร์
+            const order = JSON.parse(fs.readFileSync(filePath));
+            
+            // ลบไฟล์สลิป (ถ้ามี)
+            if (order.slip) {
+                const slipPath = order.slip.replace('/orders/slips/', 'orders/slips/');
+                if (fs.existsSync(slipPath)) {
+                    fs.unlinkSync(slipPath);
+                }
+            }
+            
+            // ลบไฟล์ออเดอร์
+            fs.unlinkSync(filePath);
+        }
+        
+        res.json({ success: true });
+    } catch (error) {
+        console.error('Error deleting order:', error);
+        res.status(500).json({ error: 'เกิดข้อผิดพลาดในการลบออเดอร์' });
+    }
+});
+
+// API: กู้คืนออเดอร์ (admin)
+app.post('/api/admin/restore-order', async (req, res) => {
+    try {
+        const { orderId, password } = req.body;
+        
+        // ตรวจสอบรหัสผ่าน
+        if (password !== '123321') {
+            return res.status(401).json({ error: 'unauthorized' });
+        }
+        
+        if (db) {
+            // ใช้ MongoDB
+            const result = await mongoUpdateOne(
+                { orderId: orderId },
+                { 
+                    $set: { 
+                        status: 'wait_slip', 
+                        restoredAt: new Date(),
+                        deletedAt: null
+                    }
+                }
+            );
+            
+            if (result.matchedCount === 0) {
+                return res.status(404).json({ error: 'ไม่พบออเดอร์' });
+            }
+        } else {
+            // Fallback ใช้ไฟล์ JSON
+            const filePath = `orders/${orderId}.json`;
+            if (!fs.existsSync(filePath)) {
+                return res.status(404).json({ error: 'ไม่พบออเดอร์' });
+            }
+            
+            // อ่านข้อมูลออเดอร์
+            const order = JSON.parse(fs.readFileSync(filePath));
+            
+            // กู้คืนสถานะเป็น wait_slip
+            order.status = 'wait_slip';
+            order.restoredAt = new Date();
+            delete order.deletedAt;
+            
+            // บันทึกไฟล์
+            fs.writeFileSync(filePath, JSON.stringify(order, null, 2));
+        }
+        
+        res.json({ success: true });
+    } catch (error) {
+        console.error('Error restoring order:', error);
+        res.status(500).json({ error: 'เกิดข้อผิดพลาดในการกู้คืนออเดอร์' });
+    }
+});
+
 // API: ติดตามออเดอร์ด้วยเบอร์โทรศัพท์
 app.get('/api/track', async (req, res) => {
     try {

@@ -144,6 +144,18 @@
 .admin-order-actions button.ship:hover {
     background: #ff9800;
 }
+.admin-order-actions button.delete-order {
+    background: linear-gradient(135deg, #dc3545 0%, #c82333 100%);
+}
+.admin-order-actions button.delete-order:hover {
+    background: #c82333;
+}
+.admin-order-actions button.restore-order {
+    background: linear-gradient(135deg, #17a2b8 0%, #138496 100%);
+}
+.admin-order-actions button.restore-order:hover {
+    background: #138496;
+}
 .admin-order-actions button:disabled {
     background: #ccc;
     cursor: not-allowed;
