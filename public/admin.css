@@ -203,4 +203,43 @@
     .admin-order-card {
         padding: 1rem;
     }
+}
+
+/* ฟิลเตอร์ */
+.admin-filter {
+    background: #f8f9fa;
+    border-radius: 15px 15px 0 0;
+    padding: 1.5rem 2rem;
+    margin-bottom: 0;
+    border-bottom: 2px solid #e9ecef;
+}
+.admin-filter h3 {
+    margin: 0 0 1rem 0;
+    color: #333;
+    font-size: 1.1rem;
+}
+.filter-buttons {
+    display: flex;
+    gap: 1rem;
+    flex-wrap: wrap;
+}
+.filter-btn {
+    background: #e9ecef;
+    color: #495057;
+    border: none;
+    padding: 0.5rem 1.5rem;
+    border-radius: 6px;
+    font-size: 1rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+.filter-btn:hover {
+    background: #dee2e6;
+    color: #212529;
+}
+.filter-btn.active {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    box-shadow: 0 2px 8px rgba(102, 126, 234, 0.3);
 } 

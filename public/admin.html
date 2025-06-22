@@ -32,6 +32,17 @@
                     <button class="admin-tab-btn" data-tab="wait_ship">รอจัดส่ง</button>
                     <button class="admin-tab-btn" data-tab="shipped">จัดส่งแล้ว</button>
                 </div>
+                
+                <!-- ฟิลเตอร์สำหรับรอจัดส่งและจัดส่งแล้ว -->
+                <div class="admin-filter" id="adminFilter" style="display: none;">
+                    <h3>ฟิลเตอร์ตามประเภทการจัดส่ง:</h3>
+                    <div class="filter-buttons">
+                        <button class="filter-btn active" data-filter="all">ทั้งหมด</button>
+                        <button class="filter-btn" data-filter="delivery">จัดส่ง</button>
+                        <button class="filter-btn" data-filter="pickup">นัดรับ</button>
+                    </div>
+                </div>
+                
                 <div class="admin-orders-list" id="adminOrdersList"></div>
             </div>
         </section>

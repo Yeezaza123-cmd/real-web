@@ -2,6 +2,7 @@
 let adminPassword = '';
 let orders = [];
 let currentTab = 'wait_slip';
+let currentFilter = 'all';
 
 const adminLoginSection = document.getElementById('adminLoginSection');
 const adminPanelSection = document.getElementById('adminPanelSection');
@@ -9,7 +10,9 @@ const adminLoginBtn = document.getElementById('adminLoginBtn');
 const adminPasswordInput = document.getElementById('adminPassword');
 const adminLoginError = document.getElementById('adminLoginError');
 const adminOrdersList = document.getElementById('adminOrdersList');
+const adminFilter = document.getElementById('adminFilter');
 const tabBtns = document.querySelectorAll('.admin-tab-btn');
+const filterBtns = document.querySelectorAll('.filter-btn');
 
 // ล็อกอิน
 adminLoginBtn.onclick = function() {
@@ -36,6 +39,28 @@ for (const btn of tabBtns) {
         tabBtns.forEach(b => b.classList.remove('active'));
         btn.classList.add('active');
         currentTab = btn.getAttribute('data-tab');
+        
+        // แสดง/ซ่อนฟิลเตอร์ตามแถบที่เลือก
+        if (currentTab === 'wait_ship' || currentTab === 'shipped') {
+            adminFilter.style.display = 'block';
+        } else {
+            adminFilter.style.display = 'none';
+            currentFilter = 'all';
+            // รีเซ็ตปุ่มฟิลเตอร์
+            filterBtns.forEach(b => b.classList.remove('active'));
+            filterBtns[0].classList.add('active');
+        }
+        
+        renderOrders();
+    };
+}
+
+// เปลี่ยนฟิลเตอร์
+for (const btn of filterBtns) {
+    btn.onclick = function() {
+        filterBtns.forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        currentFilter = btn.getAttribute('data-filter');
         renderOrders();
     };
 }
@@ -43,7 +68,13 @@ for (const btn of tabBtns) {
 // แสดงรายการออเดอร์
 function renderOrders() {
     adminOrdersList.innerHTML = '';
-    const filtered = orders.filter(o => o.status === currentTab);
+    let filtered = orders.filter(o => o.status === currentTab);
+    
+    // ใช้ฟิลเตอร์เพิ่มเติมสำหรับรอจัดส่งและจัดส่งแล้ว
+    if ((currentTab === 'wait_ship' || currentTab === 'shipped') && currentFilter !== 'all') {
+        filtered = filtered.filter(o => o.delivery.method === currentFilter);
+    }
+    
     if (filtered.length === 0) {
         adminOrdersList.innerHTML = '<p style="text-align:center;color:#888;">ไม่มีออเดอร์ในสถานะนี้</p>';
         return;
