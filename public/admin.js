@@ -201,16 +201,6 @@ function generatePdf() {
             padding: 0;
             font-size: 18px;
         }
-        .size-table {
-            text-align: center;
-            margin-bottom: 20px;
-            page-break-after: always;
-        }
-        .size-table img {
-            max-width: 100%;
-            height: auto;
-            border: 1px solid #ccc;
-        }
         .orders-grid {
             display: grid;
             grid-template-columns: 1fr 1fr;
@@ -246,17 +236,6 @@ function generatePdf() {
             color: #d32f2f;
             margin-top: 5px;
         }
-        .status {
-            font-weight: bold;
-            font-size: 9px;
-            padding: 2px 4px;
-            border-radius: 3px;
-            display: inline-block;
-            margin-top: 3px;
-        }
-        .status-wait_slip { background: #fff3cd; color: #856404; }
-        .status-wait_ship { background: #d1ecf1; color: #0c5460; }
-        .status-shipped { background: #d4edda; color: #155724; }
         @media print {
             body { margin: 0; }
             .orders-grid { height: 100vh; }
@@ -264,9 +243,6 @@ function generatePdf() {
     </style>
 </head>
 <body>
-    <div class="size-table">
-        <img src="size_table.jpg" alt="ตารางขนาดเสื้อ">
-    </div>
     <div class="orders-grid">
 `;
 

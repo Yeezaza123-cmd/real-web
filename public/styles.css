@@ -137,6 +137,34 @@ nav a:hover {
     opacity: 0.9;
 }
 
+/* Size Table Section */
+.size-table-section {
+    padding: 3rem 0;
+    background: #fff;
+}
+
+.size-table-section h2 {
+    text-align: center;
+    font-size: 2.5rem;
+    margin-bottom: 2rem;
+    color: #333;
+}
+
+.size-table-container {
+    text-align: center;
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 0 20px;
+}
+
+.size-table-img {
+    max-width: 100%;
+    height: auto;
+    border-radius: 10px;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+    border: 1px solid #e0e0e0;
+}
+
 /* Products Section */
 #products {
     padding: 4rem 0;
