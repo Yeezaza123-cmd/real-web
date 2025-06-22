@@ -199,7 +199,7 @@ function generatePdf() {
             font-family: 'Sarabun', Arial, sans-serif;
             margin: 0;
             padding: 0;
-            font-size: 12px;
+            font-size: 14px;
         }
         .header {
             text-align: center;
@@ -209,12 +209,12 @@ function generatePdf() {
         }
         .header h1 {
             margin: 0;
-            font-size: 24px;
+            font-size: 26px;
             color: #333;
         }
         .header p {
             margin: 5px 0;
-            font-size: 14px;
+            font-size: 16px;
             color: #666;
         }
         .orders-grid {
@@ -233,22 +233,22 @@ function generatePdf() {
         }
         .order-header {
             font-weight: bold;
-            font-size: 11px;
+            font-size: 13px;
             margin-bottom: 5px;
             color: #333;
         }
         .order-info {
-            font-size: 9px;
+            font-size: 11px;
             line-height: 1.2;
             margin-bottom: 3px;
         }
         .order-items {
-            font-size: 8px;
+            font-size: 10px;
             margin-top: 5px;
         }
         .order-total {
             font-weight: bold;
-            font-size: 10px;
+            font-size: 12px;
             color: #d32f2f;
             margin-top: 5px;
         }
@@ -307,24 +307,6 @@ function generatePdf() {
             ? order.delivery.address 
             : order.delivery.pickupLocation;
         
-        // สถานะ
-        let statusText = '';
-        let statusClass = '';
-        switch(order.status) {
-            case 'wait_slip': 
-                statusText = 'รอยืนยันสลิป'; 
-                statusClass = 'status-wait_slip';
-                break;
-            case 'wait_ship': 
-                statusText = 'รอจัดส่ง'; 
-                statusClass = 'status-wait_ship';
-                break;
-            case 'shipped': 
-                statusText = 'จัดส่งแล้ว'; 
-                statusClass = 'status-shipped';
-                break;
-        }
-        
         // รายการสินค้า (แสดงแค่ 2 รายการแรก)
         const itemsText = order.items.slice(0, 2).map(item => 
             `${item.name} ${item.size} (x${item.quantity})`
@@ -339,7 +321,6 @@ function generatePdf() {
             <div class="order-info">โทร: ${order.customer.phone}</div>
             <div class="order-info">วิธีรับ: ${deliveryMethod}</div>
             <div class="order-info">สถานที่: ${location}</div>
-            <div class="status ${statusClass}">${statusText}</div>
             <div class="order-items">
                 <strong>สินค้า:</strong><br>
                 ${itemsText}${moreItems}
