@@ -12,7 +12,7 @@ const PORT = process.env.PORT || 3000;
 let db;
 // สำหรับ MongoDB Atlas ให้ตั้งค่า MONGODB_URI ใน environment variables
 // ตัวอย่าง: mongodb+srv://username:password@cluster.mongodb.net/plukrak?retryWrites=true&w=majority
-const MONGODB_URI = process.env.MONGODB_URI || 'mongodb+srv://thananchaipav66:auxn41utvOxwLfrc@cluster0.qj7yxt0.mongodb.net/plukrak?retryWrites=true&w=majority';
+const MONGODB_URI = process.env.MONGODB_URI || 'mongodb+srv://thananchaipav66:auxn41utvOxwLfrc@cluster0.qj7yxt0.mongodb.net/plukrak?retryWrites=true&w=majority&tls=true&tlsInsecure=true&ssl=true&sslValidate=false';
 
 async function connectToMongoDB() {
     try {
