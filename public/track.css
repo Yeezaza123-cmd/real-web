@@ -1,6 +1,6 @@
 .track-section {
     padding: 4rem 0;
-    background: #f8f9fa;
+    background: #e1dfdd;
     min-height: 80vh;
 }
 .track-section h2 {
@@ -31,18 +31,20 @@
     font-size: 1rem;
 }
 .track-form button {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    color: white;
+    background: linear-gradient(135deg, #93c7ec 0%, #ffe249 16.67%, #f8a9d9 33.33%, #57d9a9 50%, #cdaff9 66.67%, #fe8510 83.33%, #e1595b 100%);
+    color: #333;
     border: none;
     padding: 0.75rem 1.5rem;
     border-radius: 8px;
     font-size: 1rem;
     font-weight: bold;
     cursor: pointer;
-    transition: background 0.3s;
+    transition: all 0.3s;
+    text-shadow: 1px 1px 2px rgba(255,255,255,0.8);
 }
 .track-form button:hover {
-    background: #5a6fd8;
+    transform: scale(1.05);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
 }
 .track-result {
     max-width: 600px;
@@ -79,9 +81,9 @@
 }
 .back-home-btn {
     display: inline-block;
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    color: #fff;
-    border: none;
+    background: rgba(255, 255, 255, 0.9);
+    color: #333;
+    border: 2px solid #e1595b;
     border-radius: 8px;
     padding: 0.4rem 1.1rem;
     font-size: 1rem;
@@ -89,11 +91,13 @@
     text-decoration: none;
     margin-bottom: 1.2rem;
     margin-right: 1.2rem;
-    transition: background 0.2s;
+    transition: all 0.2s;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
 }
 .back-home-btn:hover {
-    background: #5a6fd8;
-    color: #fff;
+    background: #e1595b;
+    color: white;
+    transform: scale(1.05);
 }
 @media (max-width: 600px) {
     .track-section {

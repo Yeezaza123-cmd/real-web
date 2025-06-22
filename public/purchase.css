@@ -1,7 +1,7 @@
 /* Purchase Page Styles */
 .purchase-section {
     padding: 4rem 0;
-    background: #f8f9fa;
+    background: #e1dfdd;
     min-height: 100vh;
 }
 
@@ -215,20 +215,21 @@
 }
 
 .generate-qr-btn {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    color: white;
+    background: linear-gradient(135deg, #93c7ec 0%, #ffe249 16.67%, #f8a9d9 33.33%, #57d9a9 50%, #cdaff9 66.67%, #fe8510 83.33%, #e1595b 100%);
+    color: #333;
     border: none;
-    padding: 1rem 2rem;
+    padding: 0.75rem 1.5rem;
     border-radius: 8px;
     font-size: 1rem;
     font-weight: bold;
     cursor: pointer;
-    transition: transform 0.3s ease;
-    margin-top: 1rem;
+    transition: all 0.3s;
+    text-shadow: 1px 1px 2px rgba(255,255,255,0.8);
 }
 
 .generate-qr-btn:hover {
-    transform: scale(1.02);
+    transform: scale(1.05);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
 }
 
 /* Slip Upload */
@@ -261,20 +262,21 @@
 }
 
 .confirm-btn {
-    flex: 1;
-    background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
-    color: white;
+    background: linear-gradient(135deg, #93c7ec 0%, #ffe249 16.67%, #f8a9d9 33.33%, #57d9a9 50%, #cdaff9 66.67%, #fe8510 83.33%, #e1595b 100%);
+    color: #333;
     border: none;
     padding: 1rem 2rem;
     border-radius: 8px;
     font-size: 1.1rem;
     font-weight: bold;
     cursor: pointer;
-    transition: transform 0.3s ease;
+    transition: all 0.3s;
+    text-shadow: 1px 1px 2px rgba(255,255,255,0.8);
 }
 
 .confirm-btn:hover:not(:disabled) {
-    transform: scale(1.02);
+    transform: scale(1.05);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
 }
 
 .confirm-btn:disabled {
@@ -284,19 +286,22 @@
 }
 
 .back-btn {
-    background: #6c757d;
-    color: white;
-    border: none;
+    background: rgba(255, 255, 255, 0.9);
+    color: #333;
+    border: 2px solid #e1595b;
     padding: 1rem 2rem;
     border-radius: 8px;
     font-size: 1.1rem;
     font-weight: bold;
     cursor: pointer;
-    transition: background 0.3s ease;
+    transition: all 0.3s;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
 }
 
 .back-btn:hover {
-    background: #5a6268;
+    background: #e1595b;
+    color: white;
+    transform: scale(1.05);
 }
 
 /* Responsive Design */
