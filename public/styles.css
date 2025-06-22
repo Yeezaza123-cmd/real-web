@@ -31,6 +31,32 @@ header .container {
     align-items: center;
 }
 
+/* Logo Container */
+.logo-container {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.logo-img {
+    height: 50px;
+    width: auto;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+    transition: transform 0.3s ease;
+}
+
+.logo-img:hover {
+    transform: scale(1.05);
+}
+
+.admin-text {
+    font-size: 1.2rem;
+    font-weight: bold;
+    color: #ffd700;
+    text-shadow: 1px 1px 2px rgba(0,0,0,0.5);
+}
+
 .logo {
     font-size: 2rem;
     font-weight: bold;
@@ -509,6 +535,19 @@ footer {
     
     .size-select {
         min-width: auto;
+    }
+    
+    /* Logo responsive */
+    .logo-img {
+        height: 40px;
+    }
+    
+    .logo-container {
+        gap: 8px;
+    }
+    
+    .admin-text {
+        font-size: 1rem;
     }
 }
 
