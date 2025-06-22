@@ -192,6 +192,139 @@ nav a:hover {
     border: 1px solid #e0e0e0;
 }
 
+/* Slider Section */
+.slider-section {
+    padding: 3rem 0;
+    background: #fff;
+}
+
+.slider-section h2 {
+    text-align: center;
+    font-size: 2.5rem;
+    margin-bottom: 2rem;
+    color: #333;
+}
+
+.slider-container {
+    position: relative;
+    max-width: 800px;
+    margin: 0 auto;
+    overflow: hidden;
+    border-radius: 15px;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+}
+
+.slider-wrapper {
+    display: flex;
+    transition: transform 0.5s ease-in-out;
+    height: 400px;
+}
+
+.slider-slide {
+    min-width: 100%;
+    height: 100%;
+    position: relative;
+}
+
+.slider-slide img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.slider-slide.coming-soon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: linear-gradient(135deg, #93c7ec 0%, #ffe249 16.67%, #f8a9d9 33.33%, #57d9a9 50%, #cdaff9 66.67%, #fe8510 83.33%, #e1595b 100%);
+    color: #333;
+    font-size: 2rem;
+    font-weight: bold;
+    text-align: center;
+    padding: 2rem;
+}
+
+.slider-btn {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    background: rgba(255, 255, 255, 0.9);
+    border: none;
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    font-size: 1.5rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    z-index: 10;
+    color: #333;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+
+.slider-btn:hover {
+    background: rgba(255, 255, 255, 1);
+    transform: translateY(-50%) scale(1.1);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+}
+
+.slider-btn.prev {
+    left: 20px;
+}
+
+.slider-btn.next {
+    right: 20px;
+}
+
+.slider-dots {
+    position: absolute;
+    bottom: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    gap: 10px;
+    z-index: 10;
+}
+
+.slider-dot {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.6);
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.slider-dot.active {
+    background: rgba(255, 255, 255, 1);
+    transform: scale(1.2);
+}
+
+/* Responsive slider */
+@media (max-width: 768px) {
+    .slider-wrapper {
+        height: 300px;
+    }
+    
+    .slider-slide.coming-soon {
+        font-size: 1.5rem;
+        padding: 1rem;
+    }
+    
+    .slider-btn {
+        width: 40px;
+        height: 40px;
+        font-size: 1.2rem;
+    }
+    
+    .slider-btn.prev {
+        left: 10px;
+    }
+    
+    .slider-btn.next {
+        right: 10px;
+    }
+}
+
 /* Products Section */
 #products {
     padding: 4rem 0;

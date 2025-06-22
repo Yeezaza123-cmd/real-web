@@ -316,8 +316,128 @@ style.textContent = `
 `;
 document.head.appendChild(style);
 
+// ตัวแปรสำหรับภาพเลื่อน
+let currentSlide = 0;
+let sliderImages = [];
+let autoSlideInterval;
+
+// โหลดภาพเลื่อน
+async function loadSliderImages() {
+    try {
+        const response = await fetch('/api/slider-images');
+        const data = await response.json();
+        
+        if (data.images && data.images.length > 0) {
+            sliderImages = data.images;
+            createSlider();
+        } else {
+            showComingSoon();
+        }
+    } catch (error) {
+        console.error('Error loading slider images:', error);
+        showComingSoon();
+    }
+}
+
+// สร้างภาพเลื่อน
+function createSlider() {
+    const sliderWrapper = document.getElementById('sliderWrapper');
+    const sliderDots = document.getElementById('sliderDots');
+    const prevBtn = document.getElementById('prevBtn');
+    const nextBtn = document.getElementById('nextBtn');
+    
+    // สร้างภาพเลื่อน
+    sliderWrapper.innerHTML = '';
+    sliderImages.forEach((image, index) => {
+        const slide = document.createElement('div');
+        slide.className = 'slider-slide';
+        slide.innerHTML = `<img src="${image.url}" alt="ภาพโฆษณา ${index + 1}">`;
+        sliderWrapper.appendChild(slide);
+    });
+    
+    // สร้างจุดนำทาง
+    sliderDots.innerHTML = '';
+    sliderImages.forEach((_, index) => {
+        const dot = document.createElement('div');
+        dot.className = `slider-dot ${index === 0 ? 'active' : ''}`;
+        dot.onclick = () => goToSlide(index);
+        sliderDots.appendChild(dot);
+    });
+    
+    // เพิ่ม event listeners
+    prevBtn.onclick = () => prevSlide();
+    nextBtn.onclick = () => nextSlide();
+    
+    // เริ่มเลื่อนอัตโนมัติ
+    startAutoSlide();
+    
+    // หยุดเลื่อนอัตโนมัติเมื่อ hover
+    sliderWrapper.addEventListener('mouseenter', stopAutoSlide);
+    sliderWrapper.addEventListener('mouseleave', startAutoSlide);
+}
+
+// แสดง Coming Soon
+function showComingSoon() {
+    const sliderWrapper = document.getElementById('sliderWrapper');
+    const sliderDots = document.getElementById('sliderDots');
+    const prevBtn = document.getElementById('prevBtn');
+    const nextBtn = document.getElementById('nextBtn');
+    
+    sliderWrapper.innerHTML = '<div class="slider-slide coming-soon">🎉 Coming Soon! 🎉<br>ภาพโฆษณาสวยๆ กำลังจะมา</div>';
+    sliderDots.innerHTML = '';
+    prevBtn.style.display = 'none';
+    nextBtn.style.display = 'none';
+}
+
+// ไปยังภาพที่กำหนด
+function goToSlide(index) {
+    if (index < 0 || index >= sliderImages.length) return;
+    
+    currentSlide = index;
+    const sliderWrapper = document.getElementById('sliderWrapper');
+    const dots = document.querySelectorAll('.slider-dot');
+    
+    sliderWrapper.style.transform = `translateX(-${index * 100}%)`;
+    
+    // อัปเดตจุดนำทาง
+    dots.forEach((dot, i) => {
+        dot.classList.toggle('active', i === index);
+    });
+}
+
+// ภาพถัดไป
+function nextSlide() {
+    const nextIndex = (currentSlide + 1) % sliderImages.length;
+    goToSlide(nextIndex);
+}
+
+// ภาพก่อนหน้า
+function prevSlide() {
+    const prevIndex = currentSlide === 0 ? sliderImages.length - 1 : currentSlide - 1;
+    goToSlide(prevIndex);
+}
+
+// เริ่มเลื่อนอัตโนมัติ
+function startAutoSlide() {
+    if (sliderImages.length <= 1) return;
+    
+    stopAutoSlide(); // หยุดการเลื่อนเดิมก่อน
+    autoSlideInterval = setInterval(() => {
+        nextSlide();
+    }, 3000); // เลื่อนทุก 3 วินาที
+}
+
+// หยุดเลื่อนอัตโนมัติ
+function stopAutoSlide() {
+    if (autoSlideInterval) {
+        clearInterval(autoSlideInterval);
+        autoSlideInterval = null;
+    }
+}
+
 // โหลดข้อมูลเมื่อหน้าเว็บโหลดเสร็จ
 document.addEventListener('DOMContentLoaded', () => {
     loadProducts();
     updateCartDisplay();
+    loadSliderImages(); // โหลดภาพเลื่อน
 }); 
