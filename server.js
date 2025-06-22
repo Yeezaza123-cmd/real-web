@@ -442,9 +442,17 @@ app.get('/api/slider-images', (req, res) => {
 // API: อัปโหลดภาพเลื่อน
 app.post('/api/upload-slider-image', sliderUpload.single('image'), (req, res) => {
     try {
+        console.log('API upload-slider-image ถูกเรียก');
+        console.log('req.file:', req.file);
+        console.log('req.body:', req.body);
+        
         if (!req.file) {
+            console.log('ไม่พบไฟล์ภาพ');
             return res.status(400).json({ error: 'ไม่พบไฟล์ภาพ' });
         }
+        
+        console.log('ไฟล์ที่อัปโหลด:', req.file.filename);
+        console.log('URL:', `/slider-images/${req.file.filename}`);
         
         res.json({ 
             success: true, 
@@ -537,6 +545,15 @@ app.use((req, res) => {
 // Start server
 async function startServer() {
     await connectToMongoDB();
+    
+    // สร้างโฟลเดอร์ที่จำเป็น
+    const requiredDirs = ['orders', 'orders/slips', 'public/slider-images'];
+    requiredDirs.forEach(dir => {
+        if (!fs.existsSync(dir)) {
+            fs.mkdirSync(dir, { recursive: true });
+            console.log(`สร้างโฟลเดอร์: ${dir}`);
+        }
+    });
     
     app.listen(PORT, () => {
         console.log(`Server is running on port ${PORT}`);

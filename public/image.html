@@ -305,18 +305,22 @@
                         data.images.forEach((image, index) => {
                             const imageItem = document.createElement('div');
                             imageItem.className = 'image-item';
-                            imageItem.innerHTML = `
-                                <img src="${image.url}" alt="ภาพเลื่อน ${index + 1}">
-                                <div class="image-actions">
-                                    <button class="order-btn" onclick="changeOrder('${image.filename}', ${index - 1})" ${index === 0 ? 'disabled' : ''}>↑</button>
-                                    <button class="order-btn" onclick="changeOrder('${image.filename}', ${index + 1)}" ${index === data.images.length - 1 ? 'disabled' : ''}>↓</button>
-                                    <button class="delete-btn" onclick="deleteImage('${image.filename}')">×</button>
-                                </div>
-                                <div class="image-info">
-                                    ${image.filename}<br>
-                                    ลำดับ: ${index + 1}
-                                </div>
-                            `;
+                            
+                            const disabledUp = index === 0 ? 'disabled' : '';
+                            const disabledDown = index === data.images.length - 1 ? 'disabled' : '';
+                            
+                            imageItem.innerHTML = 
+                                '<img src="' + image.url + '" alt="ภาพเลื่อน ' + (index + 1) + '">' +
+                                '<div class="image-actions">' +
+                                    '<button class="order-btn" onclick="changeOrder(\'' + image.filename + '\', ' + (index - 1) + ')" ' + disabledUp + '>↑</button>' +
+                                    '<button class="order-btn" onclick="changeOrder(\'' + image.filename + '\', ' + (index + 1) + ')" ' + disabledDown + '>↓</button>' +
+                                    '<button class="delete-btn" onclick="deleteImage(\'' + image.filename + '\')">×</button>' +
+                                '</div>' +
+                                '<div class="image-info">' +
+                                    image.filename + '<br>' +
+                                    'ลำดับ: ' + (index + 1) +
+                                '</div>';
+                            
                             imagesGrid.appendChild(imageItem);
                         });
                     } else {
@@ -337,10 +341,14 @@
             const uploadBtn = document.getElementById('uploadBtn');
             const uploadMessage = document.getElementById('uploadMessage');
             
+            console.log('เริ่มอัปโหลดภาพ...');
+            
             if (!fileInput.files[0]) {
                 showMessage('กรุณาเลือกไฟล์ภาพ', 'error');
                 return;
             }
+            
+            console.log('ไฟล์ที่เลือก:', fileInput.files[0].name);
             
             const formData = new FormData();
             formData.append('image', fileInput.files[0]);
@@ -348,12 +356,21 @@
             uploadBtn.disabled = true;
             uploadBtn.textContent = 'กำลังอัปโหลด...';
             
+            console.log('ส่งคำขอไปยัง /api/upload-slider-image');
+            
             fetch('/api/upload-slider-image', {
                 method: 'POST',
                 body: formData
             })
-            .then(res => res.json())
+            .then(res => {
+                console.log('Response status:', res.status);
+                if (!res.ok) {
+                    throw new Error(`HTTP error! status: ${res.status}`);
+                }
+                return res.json();
+            })
             .then(data => {
+                console.log('Response data:', data);
                 if (data.success) {
                     showMessage('อัปโหลดภาพสำเร็จ!', 'success');
                     fileInput.value = '';
@@ -364,7 +381,7 @@
             })
             .catch(error => {
                 console.error('Upload error:', error);
-                showMessage('เกิดข้อผิดพลาดในการเชื่อมต่อ', 'error');
+                showMessage('เกิดข้อผิดพลาดในการเชื่อมต่อ: ' + error.message, 'error');
             })
             .finally(() => {
                 uploadBtn.disabled = false;
