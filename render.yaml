@@ -8,5 +8,7 @@ services:
     envVars:
       - key: NODE_ENV
         value: production
+      - key: MONGODB_URI
+        value: mongodb+srv://thananchaipav66:auxn41utvOxwLfrc@cluster0.qj7yxt0.mongodb.net/plukrak?retryWrites=true&w=majority
     healthCheckPath: /
     autoDeploy: true 

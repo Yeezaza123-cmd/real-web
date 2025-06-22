@@ -10,14 +10,22 @@ const PORT = process.env.PORT || 3000;
 
 // MongoDB connection
 let db;
-const MONGODB_URI = process.env.MONGODB_URI || 'mongodb://localhost:27017/plukrak';
+// สำหรับ MongoDB Atlas ให้ตั้งค่า MONGODB_URI ใน environment variables
+// ตัวอย่าง: mongodb+srv://username:password@cluster.mongodb.net/plukrak?retryWrites=true&w=majority
+const MONGODB_URI = process.env.MONGODB_URI || 'mongodb+srv://thananchaipav66:auxn41utvOxwLfrc@cluster0.qj7yxt0.mongodb.net/plukrak?retryWrites=true&w=majority';
 
 async function connectToMongoDB() {
     try {
+        // ตรวจสอบว่ามี MONGODB_URI หรือไม่
+        if (!process.env.MONGODB_URI) {
+            console.log('MONGODB_URI not found, using file system storage');
+            return;
+        }
+        
         const client = new MongoClient(MONGODB_URI);
         await client.connect();
         db = client.db();
-        console.log('Connected to MongoDB successfully');
+        console.log('Connected to MongoDB Atlas successfully');
         
         // สร้าง index สำหรับการค้นหา
         await db.collection('orders').createIndex({ 'customer.phone': 1 });
