@@ -20,6 +20,93 @@ const adminCaptchaSection = document.getElementById('adminCaptchaSection');
 const adminCaptchaQuestion = document.getElementById('adminCaptchaQuestion');
 const adminCaptchaInput = document.getElementById('adminCaptchaInput');
 
+// ตรวจสอบ session
+function checkSession() {
+    const session = localStorage.getItem('adminSession');
+    if (session) {
+        try {
+            const sessionData = JSON.parse(session);
+            const now = Date.now();
+            
+            // ตรวจสอบว่า session หมดอายุหรือยัง (30 นาที)
+            if (now - sessionData.timestamp < 30 * 60 * 1000) {
+                // Session ยังไม่หมดอายุ
+                adminPassword = sessionData.password;
+                loadOrdersAndShowPanel();
+                return true;
+            } else {
+                // Session หมดอายุแล้ว
+                localStorage.removeItem('adminSession');
+            }
+        } catch (error) {
+            console.error('Error parsing session:', error);
+            localStorage.removeItem('adminSession');
+        }
+    }
+    return false;
+}
+
+// โหลดออเดอร์และแสดงแอดมินพาเนล
+function loadOrdersAndShowPanel() {
+    fetch(`/api/admin/orders?password=${encodeURIComponent(adminPassword)}`)
+        .then(res => res.json())
+        .then(data => {
+            if (data.error) {
+                // ถ้า session ไม่ถูกต้อง ให้ลบ session และแสดงหน้า login
+                localStorage.removeItem('adminSession');
+                adminLoginSection.style.display = 'block';
+                adminPanelSection.style.display = 'none';
+                adminLoginError.textContent = 'เซสชันหมดอายุ กรุณาเข้าสู่ระบบใหม่';
+                adminLoginError.style.display = 'block';
+            } else {
+                orders = data;
+                adminLoginSection.style.display = 'none';
+                adminPanelSection.style.display = 'block';
+                adminLoginError.style.display = 'none';
+                adminCaptchaSection.style.display = 'none';
+                captchaRequired = false;
+                
+                // เพิ่ม event listener สำหรับปุ่มฟิลเตอร์หลังจากแสดง admin panel
+                setupFilterButtons();
+                
+                // เริ่ม auto-refresh
+                startAutoRefresh();
+                
+                renderOrders();
+            }
+        })
+        .catch(error => {
+            console.error('Error loading orders:', error);
+            localStorage.removeItem('adminSession');
+            adminLoginSection.style.display = 'block';
+            adminPanelSection.style.display = 'none';
+            adminLoginError.textContent = 'เกิดข้อผิดพลาดในการเชื่อมต่อ';
+            adminLoginError.style.display = 'block';
+        });
+}
+
+// บันทึก session
+function saveSession(password) {
+    const sessionData = {
+        password: password,
+        timestamp: Date.now()
+    };
+    localStorage.setItem('adminSession', JSON.stringify(sessionData));
+}
+
+// ลบ session
+function clearSession() {
+    localStorage.removeItem('adminSession');
+    adminPassword = '';
+    orders = [];
+    adminLoginSection.style.display = 'block';
+    adminPanelSection.style.display = 'none';
+    adminLoginError.style.display = 'none';
+    adminCaptchaSection.style.display = 'none';
+    captchaRequired = false;
+    stopAutoRefresh();
+}
+
 function genCaptcha() {
     // สุ่มโจทย์บวกเลขง่ายๆ
     const a = Math.floor(Math.random() * 10) + 1;
@@ -54,15 +141,22 @@ adminLoginBtn.onclick = function() {
             } else {
                 adminPassword = pwd;
                 orders = data;
+                
+                // บันทึก session เมื่อเข้าสู่ระบบสำเร็จ
+                saveSession(pwd);
+                
                 adminLoginSection.style.display = 'none';
                 adminPanelSection.style.display = 'block';
                 adminLoginError.style.display = 'none';
                 adminCaptchaSection.style.display = 'none';
                 captchaRequired = false;
+                
                 // เพิ่ม event listener สำหรับปุ่มฟิลเตอร์หลังจากแสดง admin panel
                 setupFilterButtons();
+                
                 // เริ่ม auto-refresh
                 startAutoRefresh();
+                
                 renderOrders();
             }
         });
@@ -107,6 +201,16 @@ function setupFilterButtons() {
         generatePdfBtn.onclick = generatePdf;
     }
 }
+
+// ตรวจสอบ session เมื่อโหลดหน้า
+document.addEventListener('DOMContentLoaded', () => {
+    // ตรวจสอบ session ก่อน
+    if (!checkSession()) {
+        // ถ้าไม่มี session หรือหมดอายุ ให้แสดงหน้า login
+        adminLoginSection.style.display = 'block';
+        adminPanelSection.style.display = 'none';
+    }
+});
 
 // เปลี่ยนแถบ
 for (const btn of tabBtns) {
