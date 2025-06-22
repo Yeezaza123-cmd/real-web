@@ -47,10 +47,45 @@ async function connectToMongoDB() {
         await db.collection('orders').createIndex({ 'customer.phone': 1 });
         await db.collection('orders').createIndex({ orderId: 1 });
         
+        // ย้ายข้อมูลจากไฟล์ JSON ไป MongoDB (ถ้ามี)
+        await migrateDataFromFiles();
+        
     } catch (error) {
         console.error('MongoDB connection error:', error);
         // ถ้าไม่สามารถเชื่อมต่อ MongoDB ได้ ให้ใช้ไฟล์ JSON แทน
         console.log('Falling back to file system storage');
+    }
+}
+
+// ฟังก์ชันย้ายข้อมูลจากไฟล์ JSON ไป MongoDB
+async function migrateDataFromFiles() {
+    try {
+        if (!fs.existsSync('orders')) return;
+        
+        const files = fs.readdirSync('orders').filter(f => f.endsWith('.json'));
+        if (files.length === 0) return;
+        
+        console.log(`Found ${files.length} orders to migrate...`);
+        
+        for (const file of files) {
+            try {
+                const data = fs.readFileSync(`orders/${file}`);
+                const order = JSON.parse(data);
+                
+                // ตรวจสอบว่ามีใน MongoDB แล้วหรือไม่
+                const existing = await db.collection('orders').findOne({ orderId: order.orderId });
+                if (!existing) {
+                    await db.collection('orders').insertOne(order);
+                    console.log(`Migrated order: ${order.orderId}`);
+                }
+            } catch (err) {
+                console.error(`Error migrating ${file}:`, err);
+            }
+        }
+        
+        console.log('Data migration completed');
+    } catch (error) {
+        console.error('Error during data migration:', error);
     }
 }
 
