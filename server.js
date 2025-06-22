@@ -27,7 +27,16 @@ async function connectToMongoDB() {
                 version: ServerApiVersion.v1,
                 strict: true,
                 deprecationErrors: true,
-            }
+            },
+            ssl: true,
+            tls: true,
+            tlsAllowInvalidCertificates: true,
+            tlsAllowInvalidHostnames: true,
+            serverSelectionTimeoutMS: 30000,
+            connectTimeoutMS: 30000,
+            socketTimeoutMS: 45000,
+            maxPoolSize: 1,
+            minPoolSize: 0,
         });
         
         await client.connect();
