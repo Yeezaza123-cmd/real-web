@@ -122,7 +122,7 @@ const products = [
         color: 'black',
         price: 229,
         image: '/images/black.png',
-        sizes: ['SS', 'S', 'M', 'L', 'XL', '2XL', '3XL', '4XL', '5XL']
+        sizes: ['S', 'M', 'L', 'XL', '2XL', '3XL']
     },
     {
         id: 2,
@@ -130,7 +130,7 @@ const products = [
         color: 'brown',
         price: 229,
         image: '/images/brown.png',
-        sizes: ['SS', 'S', 'M', 'L', 'XL', '2XL', '3XL', '4XL', '5XL']
+        sizes: ['S', 'M', 'L', 'XL', '2XL', '3XL']
     },
     {
         id: 3,
@@ -138,7 +138,7 @@ const products = [
         color: 'white',
         price: 229,
         image: '/images/white.png',
-        sizes: ['SS', 'S', 'M', 'L', 'XL', '2XL', '3XL', '4XL', '5XL']
+        sizes: ['S', 'M', 'L', 'XL', '2XL', '3XL']
     }
 ];
 
