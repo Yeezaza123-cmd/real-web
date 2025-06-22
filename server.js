@@ -14,6 +14,11 @@ const MONGODB_CLUSTER_URL = process.env.MONGODB_CLUSTER_URL || 'https://data.mon
 const MONGODB_DATABASE = 'plukrak';
 const MONGODB_COLLECTION = 'orders';
 
+// --- Config ---
+const ADMIN_PASSWORD = 'surapranommui888';
+const MAX_FAIL_BEFORE_CAPTCHA = 2;
+const loginFailMap = {};
+
 async function connectToMongoDB() {
     try {
         // ตรวจสอบว่ามี MONGODB_API_KEY หรือไม่
@@ -292,7 +297,25 @@ app.post('/api/order', upload.single('slip'), async (req, res) => {
 app.get('/api/admin/orders', async (req, res) => {
     try {
         const password = req.query.password;
-        if (password !== '123321') return res.status(401).json({ error: 'unauthorized' });
+        const ip = req.headers['x-forwarded-for'] || req.connection.remoteAddress;
+        if (!loginFailMap[ip]) loginFailMap[ip] = { fail: 0, last: Date.now() };
+
+        // ตรวจสอบ captcha
+        const captcha = req.query.captcha;
+        const captchaAnswer = req.query.captchaAnswer;
+        if (loginFailMap[ip].fail >= MAX_FAIL_BEFORE_CAPTCHA) {
+            if (!captcha || !captchaAnswer || captcha !== captchaAnswer) {
+                return res.status(401).json({ error: 'captcha_required', captcha: true });
+            }
+        }
+
+        if (password !== ADMIN_PASSWORD) {
+            loginFailMap[ip].fail++;
+            loginFailMap[ip].last = Date.now();
+            return res.status(401).json({ error: 'unauthorized', captcha: loginFailMap[ip].fail >= MAX_FAIL_BEFORE_CAPTCHA });
+        }
+        // ถ้ารหัสผ่านถูกต้อง รีเซ็ตตัวนับ
+        loginFailMap[ip] = { fail: 0, last: Date.now() };
         
         let orders = [];
         
@@ -357,9 +380,7 @@ app.post('/api/admin/update-status', async (req, res) => {
 app.post('/api/admin/delete-order', async (req, res) => {
     try {
         const { orderId, password } = req.body;
-        
-        // ตรวจสอบรหัสผ่าน
-        if (password !== '123321') {
+        if (password !== ADMIN_PASSWORD) {
             return res.status(401).json({ error: 'unauthorized' });
         }
         
@@ -408,7 +429,7 @@ app.post('/api/admin/restore-order', async (req, res) => {
         const { orderId, password } = req.body;
         
         // ตรวจสอบรหัสผ่าน
-        if (password !== '123321') {
+        if (password !== ADMIN_PASSWORD) {
             return res.status(401).json({ error: 'unauthorized' });
         }
         

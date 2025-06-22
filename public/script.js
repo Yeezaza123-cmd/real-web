@@ -438,6 +438,22 @@ function stopAutoSlide() {
 // โหลดข้อมูลเมื่อหน้าเว็บโหลดเสร็จ
 document.addEventListener('DOMContentLoaded', () => {
     loadProducts();
+    loadCartFromStorage(); // โหลดข้อมูลตะกร้าจาก localStorage
     updateCartDisplay();
     loadSliderImages(); // โหลดภาพเลื่อน
-}); 
+});
+
+// โหลดข้อมูลตะกร้าจาก localStorage
+function loadCartFromStorage() {
+    const savedCart = localStorage.getItem('ปลูกรักCart');
+    if (savedCart) {
+        try {
+            cart = JSON.parse(savedCart);
+            updateCartDisplay();
+        } catch (error) {
+            console.error('Error loading cart from localStorage:', error);
+            cart = [];
+            localStorage.removeItem('ปลูกรักCart');
+        }
+    }
+} 

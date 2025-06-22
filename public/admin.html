@@ -24,6 +24,10 @@
                 <div class="admin-login-form">
                     <input type="password" id="adminPassword" placeholder="รหัสผ่านแอดมิน">
                     <button id="adminLoginBtn">เข้าสู่ระบบ</button>
+                    <div id="adminCaptchaSection" style="display:none;align-items:center;gap:0.5rem;margin-top:0.5rem;">
+                        <span id="adminCaptchaQuestion" style="font-weight:bold;"></span>
+                        <input type="text" id="adminCaptchaInput" placeholder="กรอกคำตอบ" style="width:80px;">
+                    </div>
                     <div id="adminLoginError" class="error-message" style="display:none;"></div>
                 </div>
             </div>

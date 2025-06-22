@@ -4,6 +4,9 @@ let orders = [];
 let currentTab = 'wait_slip';
 let currentFilter = 'all';
 let autoRefreshInterval = null;
+let captchaRequired = false;
+let captchaQuestion = '';
+let captchaAnswer = '';
 
 const adminLoginSection = document.getElementById('adminLoginSection');
 const adminPanelSection = document.getElementById('adminPanelSection');
@@ -13,28 +16,53 @@ const adminLoginError = document.getElementById('adminLoginError');
 const adminOrdersList = document.getElementById('adminOrdersList');
 const adminFilter = document.getElementById('adminFilter');
 const tabBtns = document.querySelectorAll('.admin-tab-btn');
+const adminCaptchaSection = document.getElementById('adminCaptchaSection');
+const adminCaptchaQuestion = document.getElementById('adminCaptchaQuestion');
+const adminCaptchaInput = document.getElementById('adminCaptchaInput');
+
+function genCaptcha() {
+    // สุ่มโจทย์บวกเลขง่ายๆ
+    const a = Math.floor(Math.random() * 10) + 1;
+    const b = Math.floor(Math.random() * 10) + 1;
+    captchaQuestion = `${a} + ${b} = ?`;
+    captchaAnswer = (a + b).toString();
+    adminCaptchaQuestion.textContent = captchaQuestion;
+    adminCaptchaInput.value = '';
+}
 
 // ล็อกอิน
 adminLoginBtn.onclick = function() {
     const pwd = adminPasswordInput.value;
-    fetch(`/api/admin/orders?password=${encodeURIComponent(pwd)}`)
+    let url = `/api/admin/orders?password=${encodeURIComponent(pwd)}`;
+    if (captchaRequired) {
+        url += `&captcha=${encodeURIComponent(adminCaptchaInput.value)}&captchaAnswer=${encodeURIComponent(captchaAnswer)}`;
+    }
+    fetch(url)
         .then(res => res.json())
         .then(data => {
             if (data.error) {
-                adminLoginError.textContent = 'รหัสผ่านไม่ถูกต้อง';
-                adminLoginError.style.display = 'block';
+                if (data.error === 'captcha_required' || data.captcha) {
+                    captchaRequired = true;
+                    adminCaptchaSection.style.display = 'flex';
+                    genCaptcha();
+                    adminLoginError.textContent = 'กรุณากรอก captcha';
+                    adminLoginError.style.display = 'block';
+                } else {
+                    adminLoginError.textContent = 'รหัสผ่านไม่ถูกต้อง';
+                    adminLoginError.style.display = 'block';
+                }
             } else {
                 adminPassword = pwd;
                 orders = data;
                 adminLoginSection.style.display = 'none';
                 adminPanelSection.style.display = 'block';
-                
+                adminLoginError.style.display = 'none';
+                adminCaptchaSection.style.display = 'none';
+                captchaRequired = false;
                 // เพิ่ม event listener สำหรับปุ่มฟิลเตอร์หลังจากแสดง admin panel
                 setupFilterButtons();
-                
                 // เริ่ม auto-refresh
                 startAutoRefresh();
-                
                 renderOrders();
             }
         });
