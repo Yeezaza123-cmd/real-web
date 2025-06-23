@@ -421,20 +421,12 @@ app.post('/api/admin/delete-order', async (req, res) => {
             if (!fs.existsSync(filePath)) {
                 return res.status(404).json({ error: 'ไม่พบออเดอร์' });
             }
-            
             // อ่านข้อมูลออเดอร์
             const order = JSON.parse(fs.readFileSync(filePath));
-            
-            // ลบไฟล์สลิป (ถ้ามี)
-            if (order.slip) {
-                const slipPath = order.slip.replace('/orders/slips/', 'orders/slips/');
-                if (fs.existsSync(slipPath)) {
-                    fs.unlinkSync(slipPath);
-                }
-            }
-            
-            // ลบไฟล์ออเดอร์
-            fs.unlinkSync(filePath);
+            // soft delete: เปลี่ยนสถานะและเพิ่ม deletedAt
+            order.status = 'deleted';
+            order.deletedAt = new Date();
+            fs.writeFileSync(filePath, JSON.stringify(order, null, 2));
         }
         
         res.json({ success: true });

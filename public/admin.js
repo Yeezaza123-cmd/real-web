@@ -302,7 +302,7 @@ function renderOrders() {
                 </div>
             </div>
             <div class="admin-order-actions">
-                ${order.status === 'wait_slip' && order.slip ? `<button class="view-slip" onclick="showSlipModal('${order.slip}')">ดูสลิปการโอน</button>` : ''}
+                ${(order.status === 'wait_slip' && order.slip && order.status !== 'deleted') ? `<button class=\"view-slip\" onclick=\"showSlipModal('${order.slip}')\">ดูสลิปการโอน</button>` : ''}
                 ${order.status === 'wait_slip' ? `<button class="confirm" onclick="confirmSlip('${order.orderId}')">ยืนยันสลิป</button>` : ''}
                 ${order.status === 'wait_ship' && order.delivery.method === 'delivery' ? `<input type="text" id="tracking_${order.orderId}" placeholder="เลขพัสดุ"><button class="ship" onclick="confirmShip('${order.orderId}')">ยืนยันจัดส่ง</button>` : ''}
                 ${order.status === 'wait_ship' && order.delivery.method === 'pickup' ? `<button class="ship" onclick="confirmShip('${order.orderId}')">ยืนยันนัดรับแล้ว</button>` : ''}
