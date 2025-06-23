@@ -135,8 +135,8 @@ adminLoginBtn.onclick = function() {
                     adminLoginError.textContent = 'กรุณากรอก captcha';
                     adminLoginError.style.display = 'block';
                 } else {
-                    adminLoginError.textContent = 'รหัสผ่านไม่ถูกต้อง';
-                    adminLoginError.style.display = 'block';
+                adminLoginError.textContent = 'รหัสผ่านไม่ถูกต้อง';
+                adminLoginError.style.display = 'block';
                 }
             } else {
                 adminPassword = pwd;
