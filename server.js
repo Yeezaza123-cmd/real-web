@@ -342,7 +342,7 @@ app.get('/api/admin/orders', async (req, res) => {
         
         if (db) {
             // ใช้ MongoDB
-            orders = await mongoFind();
+            orders = await mongoFind({});
         } else {
             // Fallback ใช้ไฟล์ JSON
             if (!fs.existsSync('orders')) {

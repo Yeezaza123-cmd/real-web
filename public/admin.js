@@ -580,17 +580,21 @@ function generatePdf() {
     <div class="orders-grid">
 `;
 
-    // เรียงลำดับออเดอร์ตามวันที่
-    const sortedOrders = [...orders].sort((a, b) => 
-        new Date(b.orderDate || 0) - new Date(a.orderDate || 0)
-    );
-
-    // กรองเฉพาะออเดอร์ที่มีสถานะ "รอจัดส่ง"
-    const waitShipOrders = sortedOrders.filter(order => order.status === 'wait_ship');
+    // เรียงลำดับออเดอร์ตามประเภทการรับ (จัดส่งมาก่อน) แล้วตามวันที่ล่าสุดก่อน
+    const sortedOrders = [...orders]
+        .filter(order => order.status === 'wait_ship')
+        .sort((a, b) => {
+            // จัดส่ง (delivery) มาก่อน นัดรับ (pickup)
+            if (a.delivery.method !== b.delivery.method) {
+                return a.delivery.method === 'delivery' ? -1 : 1;
+            }
+            // ถ้าเป็นประเภทเดียวกัน ให้เรียงตามวันที่ล่าสุดก่อน
+            return new Date(b.orderDate || 0) - new Date(a.orderDate || 0);
+        });
 
     let orderIndex = 0;
 
-    for (const order of waitShipOrders) {
+    for (const order of sortedOrders) {
         // วิธีรับสินค้า
         const deliveryMethod = order.delivery.method === 'delivery' ? 'จัดส่ง' : 'นัดรับ';
         
