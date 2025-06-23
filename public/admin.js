@@ -296,7 +296,7 @@ function renderOrders() {
                 <div class="admin-order-items">
                     <strong>รายการสินค้า</strong>
                     <ul class="admin-order-items-list">
-                        ${order.items.map(i => `${i.name} - ${i.size} (x${i.quantity}) - ฿${['2XL','3XL','4XL','5XL'].includes(i.size)?i.price+20:i.price}`).join('<br>')}
+                        ${order.items.map(i => `${i.name} - ${i.size} (x${i.quantity}) - ฿${i.price}`).join('<br>')}
                     </ul>
                     <div class="admin-order-total">รวมทั้งสิ้น: ฿${order.grandTotal}</div>
                 </div>

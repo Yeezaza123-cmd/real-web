@@ -144,7 +144,17 @@ const products = [
         color: 'black',
         price: 229,
         image: '/images/black.png',
-        sizes: ['S', 'M', 'L', 'XL', '2XL', '3XL']
+        sizes: [
+            { size: 'S', price: 229 },
+            { size: 'M', price: 229 },
+            { size: 'L', price: 229 },
+            { size: 'XL', price: 229 },
+            { size: '2XL', price: 249 },
+            { size: '3XL', price: 249 },
+            { size: '4XL', price: 249 },
+            { size: '5XL', price: 249 },
+            { size: '6XL', price: 249 }
+        ]
     },
     {
         id: 2,
@@ -152,7 +162,17 @@ const products = [
         color: 'brown',
         price: 229,
         image: '/images/brown.png',
-        sizes: ['S', 'M', 'L', 'XL', '2XL', '3XL']
+        sizes: [
+            { size: 'S', price: 229 },
+            { size: 'M', price: 229 },
+            { size: 'L', price: 229 },
+            { size: 'XL', price: 229 },
+            { size: '2XL', price: 249 },
+            { size: '3XL', price: 249 },
+            { size: '4XL', price: 249 },
+            { size: '5XL', price: 249 },
+            { size: '6XL', price: 249 }
+        ]
     },
     {
         id: 3,
@@ -160,7 +180,17 @@ const products = [
         color: 'white',
         price: 229,
         image: '/images/white.png',
-        sizes: ['S', 'M', 'L', 'XL', '2XL', '3XL']
+        sizes: [
+            { size: 'S', price: 229 },
+            { size: 'M', price: 229 },
+            { size: 'L', price: 229 },
+            { size: 'XL', price: 229 },
+            { size: '2XL', price: 249 },
+            { size: '3XL', price: 249 },
+            { size: '4XL', price: 249 },
+            { size: '5XL', price: 249 },
+            { size: '6XL', price: 249 }
+        ]
     }
 ];
 

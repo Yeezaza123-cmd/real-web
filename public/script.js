@@ -40,7 +40,17 @@ async function loadProducts() {
                 color: 'black',
                 price: 229,
                 image: '/images/black.png',
-                sizes: ['S', 'M', 'L', 'XL', '2XL', '3XL']
+                sizes: [
+                    { size: 'S', price: 229 },
+                    { size: 'M', price: 229 },
+                    { size: 'L', price: 229 },
+                    { size: 'XL', price: 229 },
+                    { size: '2XL', price: 249 },
+                    { size: '3XL', price: 249 },
+                    { size: '4XL', price: 249 },
+                    { size: '5XL', price: 249 },
+                    { size: '6XL', price: 249 }
+                ]
             },
             {
                 id: 2,
@@ -48,7 +58,17 @@ async function loadProducts() {
                 color: 'brown',
                 price: 229,
                 image: '/images/brown.png',
-                sizes: ['S', 'M', 'L', 'XL', '2XL', '3XL']
+                sizes: [
+                    { size: 'S', price: 229 },
+                    { size: 'M', price: 229 },
+                    { size: 'L', price: 229 },
+                    { size: 'XL', price: 229 },
+                    { size: '2XL', price: 249 },
+                    { size: '3XL', price: 249 },
+                    { size: '4XL', price: 249 },
+                    { size: '5XL', price: 249 },
+                    { size: '6XL', price: 249 }
+                ]
             },
             {
                 id: 3,
@@ -56,7 +76,17 @@ async function loadProducts() {
                 color: 'white',
                 price: 229,
                 image: '/images/white.png',
-                sizes: ['S', 'M', 'L', 'XL', '2XL', '3XL']
+                sizes: [
+                    { size: 'S', price: 229 },
+                    { size: 'M', price: 229 },
+                    { size: 'L', price: 229 },
+                    { size: 'XL', price: 229 },
+                    { size: '2XL', price: 249 },
+                    { size: '3XL', price: 249 },
+                    { size: '4XL', price: 249 },
+                    { size: '5XL', price: 249 },
+                    { size: '6XL', price: 249 }
+                ]
             }
         ];
         displayProducts();
@@ -79,13 +109,12 @@ function displayProducts() {
             </div>
             <div class="product-info">
                 <h3 class="product-name">${product.name}</h3>
-                <p class="product-price">${product.price} บาท</p>
+                <p class="product-price">เริ่มต้น ${product.sizes[0].price} บาท</p>
                 <div class="product-controls">
                     <select class="size-select" data-product-id="${product.id}">
                         <option value="">เลือกไซส์</option>
-                        ${product.sizes.map(size => {
-                            const sizePrice = ['2XL', '3XL'].includes(size) ? product.price + 20 : product.price;
-                            return `<option value="${size}">${size} (${sizePrice})</option>`;
+                        ${product.sizes.map(sizeObj => {
+                            return `<option value="${sizeObj.size}" data-price="${sizeObj.price}">${sizeObj.size} (${sizeObj.price})</option>`;
                         }).join('')}
                     </select>
                     <div class="quantity-controls">
@@ -127,23 +156,24 @@ function addToCart(productId) {
         alert('กรุณาเลือกไซส์');
         return;
     }
+    // ดึงราคาตามไซต์
+    const selectedOption = sizeSelect.options[sizeSelect.selectedIndex];
+    const selectedPrice = parseInt(selectedOption.getAttribute('data-price'));
     
-    // ตรวจสอบว่ามีสินค้านี้ในตะกร้าแล้วหรือไม่
+    // ตรวจสอบว่ามีสินค้าไซต์นี้ในตะกร้าหรือยัง
     const existingItemIndex = cart.findIndex(item => 
         item.productId === productId && item.size === selectedSize
     );
     
     if (existingItemIndex !== -1) {
-        // อัพเดทจำนวนสินค้าที่มีอยู่
         cart[existingItemIndex].quantity += quantity;
     } else {
-        // เพิ่มสินค้าใหม่
         cart.push({
             productId: productId,
             name: product.name,
             color: product.color,
             size: selectedSize,
-            price: product.price,
+            price: selectedPrice,
             quantity: quantity,
             image: product.image
         });
