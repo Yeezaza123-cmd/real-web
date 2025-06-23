@@ -281,4 +281,24 @@
 }
 .pdf-btn:active {
     transform: translateY(0);
+}
+
+.toggle-order-btn {
+    background: linear-gradient(135deg, #ff9800 0%, #ffb74d 100%);
+    color: #fff;
+    border: none;
+    padding: 0.5rem 1.5rem;
+    border-radius: 8px;
+    font-size: 1rem;
+    font-weight: bold;
+    margin-left: 1rem;
+    cursor: pointer;
+    transition: background 0.3s;
+}
+.toggle-order-btn.closed {
+    background: linear-gradient(135deg, #dc3545 0%, #c82333 100%);
+}
+.toggle-order-btn:disabled {
+    background: #ccc;
+    cursor: not-allowed;
 } 

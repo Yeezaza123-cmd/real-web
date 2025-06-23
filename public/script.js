@@ -441,6 +441,7 @@ document.addEventListener('DOMContentLoaded', () => {
     loadCartFromStorage(); // โหลดข้อมูลตะกร้าจาก localStorage
     updateCartDisplay();
     loadSliderImages(); // โหลดภาพเลื่อน
+    checkOrderStatus();
 });
 
 // โหลดข้อมูลตะกร้าจาก localStorage
@@ -456,4 +457,34 @@ function loadCartFromStorage() {
             localStorage.removeItem('ปลูกรักCart');
         }
     }
-} 
+}
+
+// เช็คสถานะเปิด/ปิดรับออเดอร์
+let isOrderOpen = true;
+function checkOrderStatus() {
+    fetch('/api/order-status')
+        .then(res => res.json())
+        .then(data => {
+            isOrderOpen = !!data.open;
+            updateOrderStatusDisplay();
+        });
+}
+function updateOrderStatusDisplay() {
+    const checkoutBtn = document.getElementById('checkoutBtn');
+    let statusMsg = document.getElementById('orderStatusMsg');
+    if (!statusMsg) {
+        statusMsg = document.createElement('div');
+        statusMsg.id = 'orderStatusMsg';
+        statusMsg.style = 'color:#dc3545;text-align:center;font-size:1.3rem;margin:1.5rem 0;';
+        checkoutBtn.parentNode.insertBefore(statusMsg, checkoutBtn);
+    }
+    if (!isOrderOpen) {
+        statusMsg.textContent = 'ขณะนี้ปิดรับออเดอร์';
+        checkoutBtn.disabled = true;
+    } else {
+        statusMsg.textContent = '';
+        checkoutBtn.disabled = false;
+    }
+}
+// เรียกเช็คสถานะเมื่อโหลดหน้า
+checkOrderStatus(); 

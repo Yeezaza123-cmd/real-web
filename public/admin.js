@@ -7,6 +7,8 @@ let autoRefreshInterval = null;
 let captchaRequired = false;
 let captchaQuestion = '';
 let captchaAnswer = '';
+const toggleOrderBtn = document.getElementById('toggleOrderBtn');
+let isOrderOpen = true;
 
 const adminLoginSection = document.getElementById('adminLoginSection');
 const adminPanelSection = document.getElementById('adminPanelSection');
@@ -666,4 +668,50 @@ document.addEventListener('visibilitychange', function() {
     } else if (adminPassword) {
         startAutoRefresh();
     }
-}); 
+});
+
+// ฟังก์ชันโหลดสถานะเปิด/ปิดรับออเดอร์
+function loadOrderStatus() {
+    fetch('/api/order-status')
+        .then(res => res.json())
+        .then(data => {
+            isOrderOpen = !!data.open;
+            updateOrderStatusBtn();
+        });
+}
+
+function updateOrderStatusBtn() {
+    if (!toggleOrderBtn) return;
+    if (isOrderOpen) {
+        toggleOrderBtn.textContent = 'ปิดรับออเดอร์';
+        toggleOrderBtn.classList.remove('closed');
+    } else {
+        toggleOrderBtn.textContent = 'เปิดรับออเดอร์';
+        toggleOrderBtn.classList.add('closed');
+    }
+}
+
+if (toggleOrderBtn) {
+    toggleOrderBtn.onclick = function() {
+        toggleOrderBtn.disabled = true;
+        fetch('/api/order-status', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ open: !isOrderOpen, password: adminPassword })
+        })
+        .then(res => res.json())
+        .then(data => {
+            if (data.success) {
+                isOrderOpen = data.open;
+                updateOrderStatusBtn();
+            } else {
+                alert(data.error || 'เกิดข้อผิดพลาด');
+            }
+            toggleOrderBtn.disabled = false;
+        })
+        .catch(() => { toggleOrderBtn.disabled = false; });
+    };
+}
+
+// โหลดสถานะเมื่อเข้าแอดมิน
+loadOrderStatus(); 

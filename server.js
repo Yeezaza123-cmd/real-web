@@ -19,6 +19,23 @@ const ADMIN_PASSWORD = 'surapranommui888';
 const MAX_FAIL_BEFORE_CAPTCHA = 2;
 const loginFailMap = {};
 
+// ระบบเปิด/ปิดรับออเดอร์
+const ORDER_STATUS_FILE = 'order_status.json';
+function getOrderStatus() {
+    try {
+        if (!fs.existsSync(ORDER_STATUS_FILE)) {
+            fs.writeFileSync(ORDER_STATUS_FILE, JSON.stringify({ open: true }));
+        }
+        const data = fs.readFileSync(ORDER_STATUS_FILE);
+        return JSON.parse(data).open;
+    } catch (e) {
+        return true; // fallback
+    }
+}
+function setOrderStatus(open) {
+    fs.writeFileSync(ORDER_STATUS_FILE, JSON.stringify({ open }));
+}
+
 async function connectToMongoDB() {
     try {
         // ตรวจสอบว่ามี MONGODB_API_KEY หรือไม่
@@ -266,6 +283,10 @@ app.post('/api/calculate-price', (req, res) => {
 // API: รับออเดอร์ใหม่
 app.post('/api/order', upload.single('slip'), async (req, res) => {
     try {
+        // เช็คสถานะเปิด/ปิดรับออเดอร์
+        if (!getOrderStatus()) {
+            return res.status(403).json({ error: 'ขณะนี้ปิดรับออเดอร์' });
+        }
         const order = JSON.parse(req.body.order);
         const orderId = order.orderId;
         order.status = 'wait_slip';
@@ -652,6 +673,17 @@ app.post('/api/change-image-order', (req, res) => {
 
 // Serve slider images
 app.use('/slider-images', express.static('public/slider-images'));
+
+// API: สถานะเปิด/ปิดรับออเดอร์ (GET/POST)
+app.get('/api/order-status', (req, res) => {
+    res.json({ open: getOrderStatus() });
+});
+app.post('/api/order-status', (req, res) => {
+    const { open, password } = req.body;
+    if (password !== ADMIN_PASSWORD) return res.status(401).json({ error: 'unauthorized' });
+    setOrderStatus(!!open);
+    res.json({ success: true, open: !!open });
+});
 
 // Error handling middleware
 app.use((error, req, res, next) => {
