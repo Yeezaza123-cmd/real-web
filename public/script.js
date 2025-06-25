@@ -373,15 +373,15 @@ async function loadSliderImages() {
 function createSlider() {
     const sliderWrapper = document.getElementById('sliderWrapper');
     const sliderDots = document.getElementById('sliderDots');
-    const prevBtn = document.getElementById('prevBtn');
-    const nextBtn = document.getElementById('nextBtn');
+    // const prevBtn = document.getElementById('prevBtn');
+    // const nextBtn = document.getElementById('nextBtn');
     
     // สร้างภาพเลื่อน
     sliderWrapper.innerHTML = '';
     sliderImages.forEach((image, index) => {
         const slide = document.createElement('div');
         slide.className = 'slider-slide';
-        slide.innerHTML = `<img src="${image.url}" alt="ภาพโฆษณา ${index + 1}">`;
+        slide.innerHTML = `<img src="${image.url}" alt="ภาพโฆษณา ${index + 1}" style="object-fit: cover; aspect-ratio: 2/3">`;
         sliderWrapper.appendChild(slide);
     });
     
@@ -394,13 +394,19 @@ function createSlider() {
         sliderDots.appendChild(dot);
     });
     
-    // เพิ่ม event listeners
-    prevBtn.onclick = () => prevSlide();
-    nextBtn.onclick = () => nextSlide();
+    // เพิ่ม event คลิกซ้าย/ขวาของ slider
+    sliderWrapper.onclick = function(e) {
+        const rect = sliderWrapper.getBoundingClientRect();
+        const x = e.clientX - rect.left;
+        if (x < rect.width / 2) {
+            prevSlide();
+        } else {
+            nextSlide();
+        }
+    };
     
     // เริ่มเลื่อนอัตโนมัติ
     startAutoSlide();
-    
     // หยุดเลื่อนอัตโนมัติเมื่อ hover
     sliderWrapper.addEventListener('mouseenter', stopAutoSlide);
     sliderWrapper.addEventListener('mouseleave', startAutoSlide);
