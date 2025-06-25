@@ -372,29 +372,13 @@ async function loadSliderImages() {
 // สร้างภาพเลื่อน
 function createSlider() {
     const sliderWrapper = document.getElementById('sliderWrapper');
-    const sliderDots = document.getElementById('sliderDots');
-    // const prevBtn = document.getElementById('prevBtn');
-    // const nextBtn = document.getElementById('nextBtn');
-    
-    // สร้างภาพเลื่อน
     sliderWrapper.innerHTML = '';
     sliderImages.forEach((image, index) => {
         const slide = document.createElement('div');
         slide.className = 'slider-slide';
-        slide.innerHTML = `<img src="${image.url}" alt="ภาพโฆษณา ${index + 1}" style="object-fit: cover; aspect-ratio: 2/3">`;
+        slide.innerHTML = `<img src="${image.url}" alt="ภาพโฆษณา ${index + 1}">`;
         sliderWrapper.appendChild(slide);
     });
-    
-    // สร้างจุดนำทาง
-    sliderDots.innerHTML = '';
-    sliderImages.forEach((_, index) => {
-        const dot = document.createElement('div');
-        dot.className = `slider-dot ${index === 0 ? 'active' : ''}`;
-        dot.onclick = () => goToSlide(index);
-        sliderDots.appendChild(dot);
-    });
-    
-    // เพิ่ม event คลิกซ้าย/ขวาของ slider
     sliderWrapper.onclick = function(e) {
         const rect = sliderWrapper.getBoundingClientRect();
         const x = e.clientX - rect.left;
@@ -404,10 +388,7 @@ function createSlider() {
             nextSlide();
         }
     };
-    
-    // เริ่มเลื่อนอัตโนมัติ
     startAutoSlide();
-    // หยุดเลื่อนอัตโนมัติเมื่อ hover
     sliderWrapper.addEventListener('mouseenter', stopAutoSlide);
     sliderWrapper.addEventListener('mouseleave', startAutoSlide);
 }
@@ -428,17 +409,9 @@ function showComingSoon() {
 // ไปยังภาพที่กำหนด
 function goToSlide(index) {
     if (index < 0 || index >= sliderImages.length) return;
-    
     currentSlide = index;
     const sliderWrapper = document.getElementById('sliderWrapper');
-    const dots = document.querySelectorAll('.slider-dot');
-    
     sliderWrapper.style.transform = `translateX(-${index * 100}%)`;
-    
-    // อัปเดตจุดนำทาง
-    dots.forEach((dot, i) => {
-        dot.classList.toggle('active', i === index);
-    });
 }
 
 // ภาพถัดไป

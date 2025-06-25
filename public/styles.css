@@ -360,11 +360,7 @@ nav a:hover {
         height: 100%;
         object-fit: cover;
         aspect-ratio: 3/4;
-    }
-    
-    .slider-slide img, .ad-image {
-        max-height: 60vw;
-        aspect-ratio: 3/4;
+        max-height: 80vw;
     }
 }
 
