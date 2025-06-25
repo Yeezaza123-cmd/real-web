@@ -236,14 +236,13 @@ nav a:hover {
     display: block;
     max-width: 100%;
     max-height: 500px;
-    width: auto;
+    width: 100%;
     height: auto;
     margin: 0 auto;
     border-radius: 18px;
     box-shadow: 0 4px 24px rgba(168,200,232,0.18);
     background: #f8f9fa;
-    object-fit: cover;
-    aspect-ratio: 3/4;
+    object-fit: contain;
 }
 
 .slider-slide.coming-soon {
@@ -340,7 +339,6 @@ nav a:hover {
     
     .slider-slide img, .ad-image {
         max-height: 350px;
-        aspect-ratio: 3/4;
     }
 }
 
@@ -359,7 +357,6 @@ nav a:hover {
         width: 100%;
         height: 100%;
         object-fit: cover;
-        aspect-ratio: 3/4;
         max-height: 80vw;
     }
 }
