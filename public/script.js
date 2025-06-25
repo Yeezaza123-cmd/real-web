@@ -201,8 +201,7 @@ function updateCartDisplay() {
         const cartItem = document.createElement('div');
         cartItem.className = 'cart-item';
         
-        const itemPrice = ['2XL', '3XL'].includes(item.size) ? item.price + 20 : item.price;
-        const totalItemPrice = itemPrice * item.quantity;
+        const totalItemPrice = item.price * item.quantity;
         
         cartItem.innerHTML = `
             <div class="cart-item-image">
@@ -233,61 +232,44 @@ function removeFromCart(index) {
 
 // คำนวณราคารวม - แก้ไขให้ถูกต้อง
 function calculateTotal() {
-    // สร้างรายการสินค้าทั้งหมด (รวมจำนวน)
-    let allItems = [];
+    let total = 0;
+    let itemCount = cart.reduce((sum, item) => sum + item.quantity, 0);
+    
+    // เรียงลำดับสินค้าในตะกร้าจากราคามากไปน้อย
+    let sortedCartItems = [];
     cart.forEach(item => {
-        for (let i = 0; i < item.quantity; i++) {
-            allItems.push({
-                ...item,
-                quantity: 1
-            });
+        for(let i=0; i<item.quantity; i++){
+            sortedCartItems.push({ ...item, quantity: 1});
         }
     });
+    sortedCartItems.sort((a, b) => b.price - a.price);
+
+    const promoAppliedItems = new Array(sortedCartItems.length).fill(false);
     
-    let total = 0;
-    let itemCount = allItems.length;
-    
-    if (itemCount >= 3) {
-        // โปรโมชั่น 3 ตัว 599 บาท
-        let promotionCount = Math.floor(itemCount / 3);
-        let remainingItems = itemCount % 3;
-        
-        // คำนวณราคาสำหรับโปรโมชั่น
-        for (let i = 0; i < promotionCount; i++) {
-            let promotionItems = allItems.slice(i * 3, (i + 1) * 3);
-            let basePrice = 599;
-            let extraPrice = 0;
-            
-            // คำนวณราคาเพิ่มสำหรับไซส์ใหญ่
-            promotionItems.forEach(item => {
-                if (['2XL', '3XL'].includes(item.size)) {
-                    extraPrice += 20;
-                }
-            });
-            
-            total += basePrice + extraPrice;
-        }
-        
-        // คำนวณราคาสำหรับสินค้าที่เหลือ
-        for (let i = promotionCount * 3; i < itemCount; i++) {
-            let item = allItems[i];
-            let itemPrice = item.price;
-            if (['2XL', '3XL'].includes(item.size)) {
-                itemPrice += 20;
+    // ใช้โปรโมชั่น 3 ตัว 599
+    const numPromos = Math.floor(itemCount / 3);
+    for (let i = 0; i < numPromos; i++) {
+        total += 599;
+        // ทำเครื่องหมาย 3 รายการที่ถูกที่สุดว่าใช้โปรโมชั่นแล้ว
+        let promoCount = 0;
+        for (let j = sortedCartItems.length - 1; j >= 0 && promoCount < 3; j--) {
+            if (!promoAppliedItems[j]) {
+                promoAppliedItems[j] = true;
+                promoCount++;
             }
-            total += itemPrice;
         }
-    } else {
-        // คำนวณราคาปกติ
-        allItems.forEach(item => {
-            let itemPrice = item.price;
-            if (['2XL', '3XL'].includes(item.size)) {
-                itemPrice += 20;
-            }
-            total += itemPrice;
-        });
     }
     
+    // คำนวณราคาสินค้าที่เหลือ
+    let remainingItemsTotal = 0;
+    for (let i = 0; i < sortedCartItems.length; i++) {
+        if (!promoAppliedItems[i]) {
+            remainingItemsTotal += sortedCartItems[i].price;
+        }
+    }
+
+    total += remainingItemsTotal;
+
     totalPriceElement.textContent = total;
 }
 
