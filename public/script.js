@@ -46,10 +46,10 @@ async function loadProducts() {
                     { size: 'L', price: 229 },
                     { size: 'XL', price: 229 },
                     { size: '2XL', price: 249 },
-                    { size: '3XL', price: 249 },
-                    { size: '4XL', price: 249 },
-                    { size: '5XL', price: 249 },
-                    { size: '6XL', price: 249 }
+                    { size: '3XL', price: 259 },
+                    { size: '4XL', price: 269 },
+                    { size: '5XL', price: 279 },
+                    { size: '6XL', price: 289 }
                 ]
             },
             {
@@ -64,10 +64,10 @@ async function loadProducts() {
                     { size: 'L', price: 229 },
                     { size: 'XL', price: 229 },
                     { size: '2XL', price: 249 },
-                    { size: '3XL', price: 249 },
-                    { size: '4XL', price: 249 },
-                    { size: '5XL', price: 249 },
-                    { size: '6XL', price: 249 }
+                    { size: '3XL', price: 259 },
+                    { size: '4XL', price: 269 },
+                    { size: '5XL', price: 279 },
+                    { size: '6XL', price: 289 }
                 ]
             },
             {
@@ -82,10 +82,10 @@ async function loadProducts() {
                     { size: 'L', price: 229 },
                     { size: 'XL', price: 229 },
                     { size: '2XL', price: 249 },
-                    { size: '3XL', price: 249 },
-                    { size: '4XL', price: 249 },
-                    { size: '5XL', price: 249 },
-                    { size: '6XL', price: 249 }
+                    { size: '3XL', price: 259 },
+                    { size: '4XL', price: 269 },
+                    { size: '5XL', price: 279 },
+                    { size: '6XL', price: 289 }
                 ]
             }
         ];
