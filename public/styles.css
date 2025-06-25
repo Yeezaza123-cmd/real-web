@@ -232,7 +232,7 @@ nav a:hover {
     position: relative;
 }
 
-.slider-slide img {
+.slider-slide img, .ad-image {
     display: block;
     max-width: 100%;
     max-height: 500px;
@@ -243,7 +243,7 @@ nav a:hover {
     box-shadow: 0 4px 24px rgba(168,200,232,0.18);
     background: #f8f9fa;
     object-fit: cover;
-    aspect-ratio: 2/3;
+    aspect-ratio: 3/4;
 }
 
 .slider-slide.coming-soon {
@@ -338,9 +338,9 @@ nav a:hover {
         right: 10px;
     }
     
-    .ad-image, .slider-slide img {
+    .slider-slide img, .ad-image {
         max-height: 350px;
-        aspect-ratio: 2/3;
+        aspect-ratio: 3/4;
     }
 }
 
@@ -355,16 +355,16 @@ nav a:hover {
         max-height: 100vw;
         min-height: 300px;
     }
-    .slider-slide img {
+    .slider-slide img, .ad-image {
         width: 100%;
         height: 100%;
         object-fit: cover;
-        aspect-ratio: 1/1;
+        aspect-ratio: 3/4;
     }
     
-    .ad-image, .slider-slide img {
+    .slider-slide img, .ad-image {
         max-height: 60vw;
-        aspect-ratio: 2/3;
+        aspect-ratio: 3/4;
     }
 }
 
