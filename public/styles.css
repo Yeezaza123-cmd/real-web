@@ -185,11 +185,17 @@ nav a:hover {
 }
 
 .size-table-img {
+    display: block;
+    width: 100%;
     max-width: 100%;
+    max-height: 600px;
     height: auto;
+    object-fit: contain;
     border-radius: 10px;
     box-shadow: 0 5px 15px rgba(0,0,0,0.1);
     border: 1px solid #e0e0e0;
+    margin: 0 auto;
+    background: #f8f9fa;
 }
 
 /* Slider Section */
