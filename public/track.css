@@ -1,13 +1,13 @@
 .track-section {
     padding: 4rem 0;
-    background: #e1dfdd;
+    background: linear-gradient(135deg, #f8f9fa 0%, #e8f4fd 100%);
     min-height: 80vh;
 }
 .track-section h2 {
     text-align: center;
     font-size: 2.2rem;
     margin-bottom: 2rem;
-    color: #333;
+    color: #555;
 }
 .track-form {
     max-width: 400px;
@@ -22,29 +22,35 @@
 }
 .track-form label {
     font-weight: bold;
-    color: #333;
+    color: #555;
 }
 .track-form input[type="tel"] {
     padding: 0.75rem;
-    border: 2px solid #ddd;
+    border: 2px solid #d0e8f8;
     border-radius: 8px;
     font-size: 1rem;
+    transition: border-color 0.3s ease;
+}
+.track-form input[type="tel"]:focus {
+    outline: none;
+    border-color: #a8c8e8;
 }
 .track-form button {
-    background: linear-gradient(135deg, #93c7ec 0%, #ffe249 16.67%, #f8a9d9 33.33%, #57d9a9 50%, #cdaff9 66.67%, #fe8510 83.33%, #e1595b 100%);
-    color: #333;
+    background: linear-gradient(135deg, #a8c8e8 0%, #b8d8f8 100%);
+    color: #555;
     border: none;
     padding: 0.75rem 1.5rem;
     border-radius: 8px;
     font-size: 1rem;
     font-weight: bold;
     cursor: pointer;
-    transition: all 0.3s;
-    text-shadow: 1px 1px 2px rgba(255,255,255,0.8);
+    transition: all 0.3s ease;
+    box-shadow: 0 3px 10px rgba(168, 200, 232, 0.3);
 }
 .track-form button:hover {
-    transform: scale(1.05);
-    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    background: linear-gradient(135deg, #98b8d8 0%, #a8c8e8 100%);
+    transform: translateY(-1px);
+    box-shadow: 0 5px 15px rgba(168, 200, 232, 0.4);
 }
 .track-result {
     max-width: 600px;
@@ -56,34 +62,35 @@
     margin-top: 1.5rem;
 }
 .track-order-card {
-    background: #f8f9fa;
+    background: linear-gradient(135deg, #f8f9fa 0%, #e8f4fd 100%);
     border-radius: 10px;
     margin-bottom: 1.5rem;
     padding: 1.2rem 1.5rem;
     box-shadow: 0 1px 4px rgba(0,0,0,0.04);
+    border: 1px solid #d0e8f8;
 }
 .track-order-header {
     font-weight: bold;
     margin-bottom: 0.5rem;
-    color: #333;
+    color: #555;
 }
 .track-order-status {
     margin-bottom: 0.5rem;
-    color: #007bff;
+    color: #a8c8e8;
     font-weight: bold;
 }
 .track-order-items {
     margin-bottom: 0.5rem;
 }
 .track-order-tracking {
-    color: #28a745;
+    color: #a8c8e8;
     font-weight: bold;
 }
 .back-home-btn {
     display: inline-block;
-    background: rgba(255, 255, 255, 0.9);
-    color: #333;
-    border: 2px solid #e1595b;
+    background: linear-gradient(135deg, #ffe8e8 0%, #ffe0e0 100%);
+    color: #888;
+    border: none;
     border-radius: 8px;
     padding: 0.4rem 1.1rem;
     font-size: 1rem;
@@ -91,13 +98,14 @@
     text-decoration: none;
     margin-bottom: 1.2rem;
     margin-right: 1.2rem;
-    transition: all 0.2s;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    transition: all 0.3s ease;
+    box-shadow: 0 3px 10px rgba(255, 200, 200, 0.3);
 }
 .back-home-btn:hover {
-    background: #e1595b;
-    color: white;
-    transform: scale(1.05);
+    background: linear-gradient(135deg, #ffd8d8 0%, #ffc8c8 100%);
+    color: #666;
+    transform: translateY(-1px);
+    box-shadow: 0 5px 15px rgba(255, 200, 200, 0.4);
 }
 @media (max-width: 600px) {
     .track-section {

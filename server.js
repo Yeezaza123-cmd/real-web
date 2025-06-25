@@ -291,6 +291,10 @@ app.get('/', (req, res) => {
     res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
 
+app.get('/test-upload', (req, res) => {
+    res.sendFile(path.join(__dirname, 'test-upload.html'));
+});
+
 // Health check endpoint for Render
 app.get('/health', (req, res) => {
     res.status(200).json({ 
@@ -568,17 +572,17 @@ const sliderStorage = multer.diskStorage({
 const sliderUpload = multer({ 
     storage: sliderStorage,
     limits: {
-        fileSize: 10 * 1024 * 1024 // จำกัดขนาดไฟล์ 10MB
+        fileSize: 20 * 1024 * 1024 // เพิ่มขนาดไฟล์เป็น 20MB
     },
     fileFilter: function (req, file, cb) {
         // ตรวจสอบประเภทไฟล์
         if (file.mimetype.startsWith('image/')) {
             cb(null, true);
         } else {
-            cb(new Error('อนุญาตเฉพาะไฟล์รูปภาพเท่านั้น'), false);
+            cb(new Error('อนุญาตเฉพาะไฟล์รูปภาพเท่านั้น (JPG, PNG, GIF, WebP)'), false);
         }
     }
-});
+}).single('image');
 
 // API: ดึงรายการภาพเลื่อน
 app.get('/api/slider-images', (req, res) => {
@@ -605,29 +609,42 @@ app.get('/api/slider-images', (req, res) => {
 });
 
 // API: อัปโหลดภาพเลื่อน
-app.post('/api/upload-slider-image', sliderUpload.single('image'), (req, res) => {
-    try {
-        console.log('API upload-slider-image ถูกเรียก');
-        console.log('req.file:', req.file);
-        console.log('req.body:', req.body);
-        
-        if (!req.file) {
-            console.log('ไม่พบไฟล์ภาพ');
-            return res.status(400).json({ error: 'ไม่พบไฟล์ภาพ' });
+app.post('/api/upload-slider-image', (req, res) => {
+    sliderUpload(req, res, function(err) {
+        if (err) {
+            console.error('Multer error:', err);
+            if (err.code === 'LIMIT_FILE_SIZE') {
+                return res.status(400).json({ error: 'ขนาดไฟล์เกิน 20MB' });
+            }
+            if (err.message.includes('อนุญาตเฉพาะไฟล์รูปภาพเท่านั้น')) {
+                return res.status(400).json({ error: err.message });
+            }
+            return res.status(500).json({ error: 'เกิดข้อผิดพลาดในการอัปโหลดไฟล์' });
         }
         
-        console.log('ไฟล์ที่อัปโหลด:', req.file.filename);
-        console.log('URL:', `/slider-images/${req.file.filename}`);
-        
-        res.json({ 
-            success: true, 
-            filename: req.file.filename,
-            url: `/slider-images/${req.file.filename}`
-        });
-    } catch (error) {
-        console.error('Error uploading slider image:', error);
-        res.status(500).json({ error: 'เกิดข้อผิดพลาดในการอัปโหลดภาพ' });
-    }
+        try {
+            console.log('API upload-slider-image ถูกเรียก');
+            console.log('req.file:', req.file);
+            console.log('req.body:', req.body);
+            
+            if (!req.file) {
+                console.log('ไม่พบไฟล์ภาพ');
+                return res.status(400).json({ error: 'ไม่พบไฟล์ภาพ' });
+            }
+            
+            console.log('ไฟล์ที่อัปโหลด:', req.file.filename);
+            console.log('URL:', `/slider-images/${req.file.filename}`);
+            
+            res.json({ 
+                success: true, 
+                filename: req.file.filename,
+                url: `/slider-images/${req.file.filename}`
+            });
+        } catch (error) {
+            console.error('Error uploading slider image:', error);
+            res.status(500).json({ error: 'เกิดข้อผิดพลาดในการอัปโหลดภาพ' });
+        }
+    });
 });
 
 // API: ลบภาพเลื่อน

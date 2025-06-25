@@ -1,7 +1,7 @@
 /* Admin Page Styles */
 .admin-login-section {
     padding: 4rem 0;
-    background: #f8f9fa;
+    background: linear-gradient(135deg, #f8f9fa 0%, #e8f4fd 100%);
     min-height: 60vh;
 }
 .admin-login-form {
@@ -19,23 +19,25 @@
     font-size: 1rem;
 }
 .admin-login-form button {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    color: white;
+    background: linear-gradient(135deg, #a8c8e8 0%, #b8d8f8 100%);
+    color: #555;
     border: none;
     padding: 0.75rem 1.5rem;
     border-radius: 8px;
     font-size: 1rem;
     font-weight: bold;
     cursor: pointer;
-    transition: background 0.3s ease;
+    transition: all 0.3s ease;
+    box-shadow: 0 3px 10px rgba(168, 200, 232, 0.3);
 }
 .admin-login-form button:hover {
-    background: #5a6fd8;
+    background: linear-gradient(135deg, #98b8d8 0%, #a8c8e8 100%);
+    transform: translateY(-1px);
 }
 
 .admin-panel-section {
     padding: 4rem 0;
-    background: #fff;
+    background: linear-gradient(135deg, #fff 0%, #f8f9fa 100%);
     min-height: 80vh;
 }
 
@@ -45,22 +47,24 @@
     margin-bottom: 2rem;
 }
 .admin-tab-btn {
-    background: #f8f9fa;
-    color: #333;
-    border: none;
+    background: linear-gradient(135deg, #e8f4fd 0%, #f0e8ff 100%);
+    color: #666;
+    border: 1px solid #d0e8f8;
     padding: 0.75rem 2rem;
     border-radius: 8px 8px 0 0;
     font-size: 1.1rem;
     font-weight: bold;
     cursor: pointer;
-    transition: background 0.3s, color 0.3s;
+    transition: all 0.3s ease;
+    box-shadow: 0 2px 5px rgba(168, 200, 232, 0.2);
 }
 .admin-tab-btn.active {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    color: white;
+    background: linear-gradient(135deg, #a8c8e8 0%, #b8d8f8 100%);
+    color: #555;
+    box-shadow: 0 3px 10px rgba(168, 200, 232, 0.3);
 }
 .admin-orders-list {
-    background: #f8f9fa;
+    background: linear-gradient(135deg, #f8f9fa 0%, #e8f4fd 100%);
     border-radius: 0 0 15px 15px;
     padding: 2rem;
     min-height: 300px;
@@ -100,7 +104,7 @@
 }
 .admin-order-total {
     font-weight: bold;
-    color: #667eea;
+    color: #a8c8e8;
     margin-top: 0.5rem;
 }
 .admin-order-actions {
@@ -117,45 +121,56 @@
     font-size: 1rem;
 }
 .admin-order-actions button {
-    background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
-    color: white;
+    background: linear-gradient(135deg, #a8c8e8 0%, #b8d8f8 100%);
+    color: #555;
     border: none;
     padding: 0.5rem 1.5rem;
     border-radius: 8px;
     font-size: 1rem;
     font-weight: bold;
     cursor: pointer;
-    transition: background 0.3s;
+    transition: all 0.3s ease;
+    box-shadow: 0 2px 5px rgba(168, 200, 232, 0.2);
 }
 .admin-order-actions button.view-slip {
-    background: #007bff;
+    background: linear-gradient(135deg, #e8f4fd 0%, #d0e8f8 100%);
+    color: #666;
 }
 .admin-order-actions button.view-slip:hover {
-    background: #0056b3;
+    background: linear-gradient(135deg, #d0e8f8 0%, #b8d8f8 100%);
+    transform: translateY(-1px);
 }
 .admin-order-actions button.confirm {
-    background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+    background: linear-gradient(135deg, #e8f8f3 0%, #d0f0e8 100%);
+    color: #666;
 }
 .admin-order-actions button.confirm:hover {
-    background: #218838;
+    background: linear-gradient(135deg, #d0f0e8 0%, #b8e8d8 100%);
+    transform: translateY(-1px);
 }
 .admin-order-actions button.ship {
-    background: linear-gradient(135deg, #ff9800 0%, #ffb74d 100%);
+    background: linear-gradient(135deg, #ffe8d6 0%, #ffd8c6 100%);
+    color: #666;
 }
 .admin-order-actions button.ship:hover {
-    background: #ff9800;
+    background: linear-gradient(135deg, #ffd8c6 0%, #ffc8b6 100%);
+    transform: translateY(-1px);
 }
 .admin-order-actions button.delete-order {
-    background: linear-gradient(135deg, #dc3545 0%, #c82333 100%);
+    background: linear-gradient(135deg, #ffe8e8 0%, #ffe0e0 100%);
+    color: #888;
 }
 .admin-order-actions button.delete-order:hover {
-    background: #c82333;
+    background: linear-gradient(135deg, #ffd8d8 0%, #ffc8c8 100%);
+    transform: translateY(-1px);
 }
 .admin-order-actions button.restore-order {
-    background: linear-gradient(135deg, #17a2b8 0%, #138496 100%);
+    background: linear-gradient(135deg, #f0e8ff 0%, #e0d8ff 100%);
+    color: #666;
 }
 .admin-order-actions button.restore-order:hover {
-    background: #138496;
+    background: linear-gradient(135deg, #e0d8ff 0%, #d0c8ff 100%);
+    transform: translateY(-1px);
 }
 .admin-order-actions button:disabled {
     background: #ccc;
@@ -237,24 +252,24 @@
     flex-wrap: wrap;
 }
 .filter-btn {
-    background: #e9ecef;
-    color: #495057;
-    border: none;
-    padding: 0.5rem 1.5rem;
-    border-radius: 6px;
-    font-size: 1rem;
-    font-weight: 500;
+    background: linear-gradient(135deg, #e8f4fd 0%, #f0e8ff 100%);
+    color: #666;
+    border: 1px solid #d0e8f8;
+    padding: 0.5rem 1rem;
+    border-radius: 15px;
     cursor: pointer;
+    font-size: 0.9rem;
     transition: all 0.3s ease;
+    box-shadow: 0 2px 5px rgba(168, 200, 232, 0.2);
 }
 .filter-btn:hover {
-    background: #dee2e6;
-    color: #212529;
+    background: linear-gradient(135deg, #d0e8f8 0%, #e0d8ff 100%);
+    transform: translateY(-1px);
 }
 .filter-btn.active {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    color: white;
-    box-shadow: 0 2px 8px rgba(102, 126, 234, 0.3);
+    background: linear-gradient(135deg, #a8c8e8 0%, #b8d8f8 100%);
+    color: #555;
+    box-shadow: 0 3px 10px rgba(168, 200, 232, 0.3);
 }
 
 /* ปุ่มสร้าง PDF */
@@ -263,42 +278,49 @@
     text-align: center;
 }
 .pdf-btn {
-    background: linear-gradient(135deg, #dc3545 0%, #c82333 100%);
-    color: white;
+    background: linear-gradient(135deg, #a8c8e8 0%, #b8d8f8 100%);
+    color: #555;
     border: none;
-    padding: 1rem 2rem;
+    padding: 0.75rem 1.5rem;
     border-radius: 8px;
-    font-size: 1.1rem;
+    font-size: 1rem;
     font-weight: bold;
     cursor: pointer;
     transition: all 0.3s ease;
-    box-shadow: 0 4px 12px rgba(220, 53, 69, 0.3);
+    box-shadow: 0 3px 10px rgba(168, 200, 232, 0.3);
 }
 .pdf-btn:hover {
-    background: linear-gradient(135deg, #c82333 0%, #bd2130 100%);
-    transform: translateY(-2px);
-    box-shadow: 0 6px 16px rgba(220, 53, 69, 0.4);
+    background: linear-gradient(135deg, #98b8d8 0%, #a8c8e8 100%);
+    transform: translateY(-1px);
+    box-shadow: 0 5px 15px rgba(168, 200, 232, 0.4);
 }
 .pdf-btn:active {
     transform: translateY(0);
 }
 
 .toggle-order-btn {
-    background: linear-gradient(135deg, #ff9800 0%, #ffb74d 100%);
-    color: #fff;
+    background: linear-gradient(135deg, #ffe8d6 0%, #ffd8c6 100%);
+    color: #666;
     border: none;
-    padding: 0.5rem 1.5rem;
+    padding: 0.75rem 1.5rem;
     border-radius: 8px;
     font-size: 1rem;
     font-weight: bold;
-    margin-left: 1rem;
     cursor: pointer;
-    transition: background 0.3s;
+    transition: all 0.3s ease;
+    box-shadow: 0 3px 10px rgba(255, 216, 198, 0.3);
+}
+.toggle-order-btn:hover {
+    background: linear-gradient(135deg, #ffd8c6 0%, #ffc8b6 100%);
+    transform: translateY(-1px);
 }
 .toggle-order-btn.closed {
-    background: linear-gradient(135deg, #dc3545 0%, #c82333 100%);
+    background: linear-gradient(135deg, #ffe8e8 0%, #ffe0e0 100%);
+    color: #888;
 }
 .toggle-order-btn:disabled {
-    background: #ccc;
+    background: #f0f0f0;
+    color: #ccc;
     cursor: not-allowed;
+    transform: none;
 } 

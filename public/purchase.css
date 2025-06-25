@@ -1,7 +1,7 @@
 /* Purchase Page Styles */
 .purchase-section {
     padding: 4rem 0;
-    background: #e1dfdd;
+    background: linear-gradient(135deg, #f8f9fa 0%, #e8f4fd 100%);
     min-height: 100vh;
 }
 
@@ -9,7 +9,7 @@
     text-align: center;
     font-size: 2.5rem;
     margin-bottom: 3rem;
-    color: #333;
+    color: #555;
 }
 
 .purchase-container {
@@ -80,7 +80,7 @@
 
 .order-item-price {
     font-weight: bold;
-    color: #667eea;
+    color: #a8c8e8;
 }
 
 .order-total {
@@ -141,7 +141,7 @@
 .form-group textarea:focus,
 .form-group select:focus {
     outline: none;
-    border-color: #667eea;
+    border-color: #a8c8e8;
 }
 
 .form-group textarea {
@@ -167,7 +167,7 @@
 }
 
 .radio-label:hover {
-    background: #f8f9fa;
+    background: linear-gradient(135deg, #e8f4fd 0%, #f0e8ff 100%);
 }
 
 .radio-label input[type="radio"] {
@@ -186,12 +186,13 @@
 .qr-code {
     text-align: center;
     padding: 2rem;
-    background: #f8f9fa;
+    background: linear-gradient(135deg, #f8f9fa 0%, #e8f4fd 100%);
     border-radius: 10px;
     min-height: 200px;
     display: flex;
     align-items: center;
     justify-content: center;
+    border: 1px solid #d0e8f8;
 }
 
 .qr-code img {
@@ -215,21 +216,22 @@
 }
 
 .generate-qr-btn {
-    background: linear-gradient(135deg, #93c7ec 0%, #ffe249 16.67%, #f8a9d9 33.33%, #57d9a9 50%, #cdaff9 66.67%, #fe8510 83.33%, #e1595b 100%);
-    color: #333;
+    background: linear-gradient(135deg, #a8c8e8 0%, #b8d8f8 100%);
+    color: #555;
     border: none;
     padding: 0.75rem 1.5rem;
     border-radius: 8px;
     font-size: 1rem;
     font-weight: bold;
     cursor: pointer;
-    transition: all 0.3s;
-    text-shadow: 1px 1px 2px rgba(255,255,255,0.8);
+    transition: all 0.3s ease;
+    box-shadow: 0 3px 10px rgba(168, 200, 232, 0.3);
 }
 
 .generate-qr-btn:hover {
-    transform: scale(1.05);
-    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    background: linear-gradient(135deg, #98b8d8 0%, #a8c8e8 100%);
+    transform: translateY(-1px);
+    box-shadow: 0 5px 15px rgba(168, 200, 232, 0.4);
 }
 
 /* Slip Upload */
@@ -262,21 +264,22 @@
 }
 
 .confirm-btn {
-    background: linear-gradient(135deg, #93c7ec 0%, #ffe249 16.67%, #f8a9d9 33.33%, #57d9a9 50%, #cdaff9 66.67%, #fe8510 83.33%, #e1595b 100%);
-    color: #333;
+    background: linear-gradient(135deg, #a8c8e8 0%, #b8d8f8 100%);
+    color: #555;
     border: none;
     padding: 1rem 2rem;
     border-radius: 8px;
     font-size: 1.1rem;
     font-weight: bold;
     cursor: pointer;
-    transition: all 0.3s;
-    text-shadow: 1px 1px 2px rgba(255,255,255,0.8);
+    transition: all 0.3s ease;
+    box-shadow: 0 3px 10px rgba(168, 200, 232, 0.3);
 }
 
 .confirm-btn:hover:not(:disabled) {
-    transform: scale(1.05);
-    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    background: linear-gradient(135deg, #98b8d8 0%, #a8c8e8 100%);
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(168, 200, 232, 0.4);
 }
 
 .confirm-btn:disabled {
@@ -286,22 +289,22 @@
 }
 
 .back-btn {
-    background: rgba(255, 255, 255, 0.9);
-    color: #333;
-    border: 2px solid #e1595b;
+    background: linear-gradient(135deg, #ffe8e8 0%, #ffe0e0 100%);
+    color: #888;
+    border: none;
     padding: 1rem 2rem;
     border-radius: 8px;
     font-size: 1.1rem;
     font-weight: bold;
     cursor: pointer;
-    transition: all 0.3s;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    transition: all 0.3s ease;
+    box-shadow: 0 3px 10px rgba(255, 200, 200, 0.3);
 }
 
 .back-btn:hover {
-    background: #e1595b;
-    color: white;
-    transform: scale(1.05);
+    background: linear-gradient(135deg, #ffd8d8 0%, #ffc8c8 100%);
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(255, 200, 200, 0.4);
 }
 
 /* Responsive Design */
