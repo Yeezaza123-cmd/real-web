@@ -223,7 +223,7 @@ nav a:hover {
 .slider-wrapper {
     display: flex;
     transition: transform 0.5s ease-in-out;
-    height: 400px;
+    height: 500px;
 }
 
 .slider-slide {
